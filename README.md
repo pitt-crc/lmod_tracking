@@ -6,15 +6,23 @@ This repository provides scripts and utilities for ingesting the resulting log d
 
 ## Setup and Background
 
-This project assumes Lmod usage data is written to disk using the following plain text data model:
+TODO: Write this introduction
+
+### Lmod Logging
+
+Lmod facilitates usage tracking by logging module loads to the system log.
+This project assumes Lmod usage data is written to disk using the following log message format:
 
 ```
 [MONTH] [DAY] [TIME] [NODE] [LOGGERNAME]: user=[USERNAME] module=[PACKAGE]/[VERSION] path=[MODULEPATH] host=[NODE] time=[UTC]
 ```
 
-## Database Ingestion
+The message format used by Lmod is typically defined in the `SitePackage.lua` file on each node. 
+At the time of writing, this is the same format suggested by the [official Lmod documentation]((https://lmod.readthedocs.io/en/latest/300_tracking_module_usage.html)).
 
-When setting up their database, users may also find it useful to define views summarizing the overall package usage.
+### Database Ingestion
+
+TODO: Write this section
 
 ## Configuring Custom Views
 
