@@ -45,6 +45,13 @@ Setting values and their defaults are provided in the table below.
 | `DB_PORT`     | `3306`      | Port for accessing the MySQL database.  |
 | `DB_NAME`     | `lmod`      | Name of the database to write to.       |
 
+The following example demonstrates a minimally valid `.env` file:
+
+```bash
+DB_USER=lmod_ingest
+DB_PASSWORD=password123
+```
+
 ### Database Schema
 
 Migration recipes are provided for automatically configuring the necessary database schema.
@@ -70,13 +77,14 @@ python ingest.py lmod.log
 ```
 
 It is recommended to set up daily log file rotations and use a chron jon to ingest the most recent log file.
-The following example assumes you are logging to `lmod.log` and rotating files using the naming scheme `lmod.log-YYYYMMDD`.
+The following example assumes you are logging to `lmod.log` and rotating files using the naming
+scheme `lmod.log-YYYYMMDD`.
 
 ```bash
 python ingest.py $(ls -1v lmod.log-* | head -n 1)
 ```
 
-The ingestion script can safely be run multiple times on the same log file without ingesting duplicate data. 
+The ingestion script can safely be run multiple times on the same log file without ingesting duplicate data.
 
 ## Configuring Custom Views
 
