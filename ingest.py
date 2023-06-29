@@ -1,10 +1,11 @@
 import logging
+from pathlib import Path
 
 import pandas as pd
 import sqlalchemy as sa
 
 
-def parse_log_data(path: str) -> pd.DataFrame:
+def parse_log_data(path: Path | str) -> pd.DataFrame:
     """Parse, format, and return data from a module tracking log file
 
     Args:
