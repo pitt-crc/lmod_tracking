@@ -96,13 +96,15 @@ However, a few useful examples are provided below.
 
 ```mysql
 CREATE VIEW overview AS
-SELECT user.name    as user,
-       package.name as package,
-       package.version,
-       module_usage.load_time
-FROM module_usage
-         JOIN user ON user.id = module_usage.user_id
-         JOIN package ON package.id = module_usage.package_id;
+    SELECT
+        user.name as user,
+        package.name as package,
+        package.version,
+        module_usage.load_time
+    FROM
+        module_usage
+    JOIN user ON user.id = module_usage.user_id
+    JOIN package ON package.id = module_usage.package_id;
 ```
 
 ### Usage Counts by Package
@@ -112,16 +114,18 @@ time (`last_load`) for each package.
 
 ```mysql
 CREATE VIEW package_count AS
-SELECT package.name AS package,
-       COUNT(*)     AS count,
-       mu.max_date  AS last_load
-FROM module_usage
-         JOIN
-     package ON package.id = module_usage.package_id
-         JOIN
-         (SELECT MAX(load_time) AS max_date FROM module_usage) AS mu
-GROUP BY package.name, mu.max_date
-ORDER BY count DESC;
+    SELECT 
+        package.name AS package,
+        COUNT(*)     AS count,
+        mu.max_date  AS last_load
+    FROM 
+        module_usage
+    JOIN package ON package.id = module_usage.package_id
+    JOIN (SELECT MAX(load_time) AS max_date FROM module_usage) AS mu
+    GROUP BY 
+        package.name, 
+        mu.max_date
+    ORDER BY count DESC;
 ```
 
 ### Usage Counts by Package and Version
@@ -131,15 +135,17 @@ package version (`version`).
 
 ```mysql
 CREATE VIEW package_version_count AS
-SELECT package.name    AS package,
-       package.version AS version,
-       COUNT(*)        AS count,
-       mu.max_date     AS last_load
-FROM module_usage
-         JOIN
-     package ON package.id = module_usage.package_id
-         JOIN
-         (SELECT MAX(load_time) AS max_date FROM module_usage) AS mu
-GROUP BY package.name, package.version, mu.max_date
-ORDER BY count DESC;
+    SELECT package.name    AS package,
+        package.version AS version,
+        COUNT(*)        AS count,
+        mu.max_date     AS last_load
+    FROM 
+        module_usage
+    JOIN package ON package.id = module_usage.package_id
+    JOIN (SELECT MAX(load_time) AS max_date FROM module_usage) AS mu
+    GROUP BY 
+        package.name, 
+        package.version, 
+        mu.max_date
+    ORDER BY count DESC;
 ```
