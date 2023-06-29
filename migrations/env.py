@@ -24,7 +24,7 @@ def fetch_db_url() -> str:
         A sqlalchemy compatible database URL
 
     Raises:
-        RuntimeError: If the username or environment is not defined in the environment
+        RuntimeError: If the username or password is not defined in the environment
     """
 
     # Load environmental variables from the .env file if it exists
@@ -38,7 +38,7 @@ def fetch_db_url() -> str:
 
     if not (db_user and db_password):
         logging.error('Database credentials not configured in the working environment')
-        raise RuntimeError('Database credentials not configured in the working environment')
+        exit(1)
 
     return f'mysql+mysqldb://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 

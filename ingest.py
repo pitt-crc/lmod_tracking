@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Data ingestion utility for loading Lmod tracking data frm log files into a MySQL database."""
+"""Data ingestion utility for loading Lmod tracking data from log files into a MySQL database."""
 
 import logging
 import os
@@ -18,7 +18,7 @@ def fetch_db_url() -> str:
         A sqlalchemy compatible database URL
 
     Raises:
-        RuntimeError: If the username or environment is not defined in the environment
+        RuntimeError: If the username or password is not defined in the environment
     """
 
     # Load environmental variables from the .env file if it exists
@@ -32,19 +32,22 @@ def fetch_db_url() -> str:
 
     if not (db_user and db_password):
         logging.error('Database credentials not configured in the working environment')
-        raise RuntimeError('Database credentials not configured in the working environment')
+        exit(1)
 
     return f'mysql+mysqldb://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
 
 def parse_log_data(path: Path | str) -> pd.DataFrame:
-    """Parse, format, and return data from a module tracking log file
+    """Parse, format, and return data from a Lmod log file
+
+    he returned DataFrame includes columns for ``user``, ``module``, ``path``,
+    ``node``, ``time``, ``package``, and ``version``.
 
     Args:
         path: The log file path to parse
 
     Returns:
-        A DataFrame with columns for ``user``, ``module``, ``path``, ``node``, and ``time``
+        A DataFrame with the parsed data
     """
 
     # Expect columns to be seperated by whitespace and use ``=`` as a secondary
