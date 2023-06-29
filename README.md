@@ -37,13 +37,13 @@ Database connection settings should be configured as environmental variables.
 For convenience, these values can be defined in a `.env` file.
 Setting values and their defaults are provided in the table below.
 
-| Variable    | Default     | Description                             |
-|-------------|-------------|-----------------------------------------|
-| DB_USER     |             | Username for logging into the database. |
-| DB_PASSWORD |             | Password for logging into the database. |
-| DB_HOST     | `localhost` | Host running the MySQL database.        |
-| DB_PORT     | `3306`      | Port for accessing the MySQL database.  |
-| DB_NAME     | `lmod`      | Name of the database to write to.       |
+| Variable      | Default     | Description                             |
+|---------------|-------------|-----------------------------------------|
+| `DB_USER`     |             | Username for logging into the database. |
+| `DB_PASSWORD` |             | Password for logging into the database. |
+| `DB_HOST`     | `localhost` | Host running the MySQL database.        |
+| `DB_PORT`     | `3306`      | Port for accessing the MySQL database.  |
+| `DB_NAME`     | `lmod`      | Name of the database to write to.       |
 
 ### Database Schema
 
@@ -63,7 +63,20 @@ alembic upgrade 0.1  # 0.1 is the latest DB schema version
 
 ## Ingesting Data
 
-Todo: write this section
+Use the `ingest.py` script to ingest data into the database by specifying one or more log files to ingest:
+
+```bash
+python ingest.py lmod.log 
+```
+
+It is recommended to set up daily log file rotations and use a chron jon to ingest the most recent log file.
+The following example assumes you are logging to `lmod.log` and rotating files using the naming scheme `lmod.log-YYYYMMDD`.
+
+```bash
+python ingest.py $(ls -1v lmod.log-* | head -n 1)
+```
+
+The ingestion script can safely be run multiple times on the same log file without ingesting duplicate data. 
 
 ## Configuring Custom Views
 
