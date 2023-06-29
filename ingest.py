@@ -128,8 +128,8 @@ if __name__ == '__main__':
 
     for fpath in sys.argv[1:]:
         logging.info(f'Ingesting {fpath}')
-        with sa.engine.create_engine(fetch_db_url()).connect() as connection:
+        with sa.engine.create_engine(fetch_db_url()).connect() as db_connection:
             ingest_data_to_db(
                 data=parse_log_data(fpath),
-                connection=connection
+                connection=db_connection
             )

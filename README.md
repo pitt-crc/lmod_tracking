@@ -31,7 +31,7 @@ At the time of writing, this is the same format suggested by
 the [official Lmod documentation](https://lmod.readthedocs.io/en/latest/300_tracking_module_usage.html).
 If your format differs from the above, it can be changed via the `SitePackage.lua` file.
 
-### Database Connecting Settings
+### Database Connection Settings
 
 Database connection settings should be configured as environmental variables.
 For convenience, these values can be defined in a `.env` file.
@@ -76,9 +76,8 @@ Use the `ingest.py` script to ingest data into the database by specifying one or
 python ingest.py lmod.log 
 ```
 
-It is recommended to set up daily log file rotations and use a chron jon to ingest the most recent log file.
-The following example assumes you are logging to `lmod.log` and rotating files using the naming
-scheme `lmod.log-YYYYMMDD`.
+It is recommended to set up daily log file rotations and use a cron job to ingest the most recent log file.
+The following example assumes you are logging to `lmod.log` and rotating files using the naming scheme `lmod.log-YYYYMMDD`.
 
 ```bash
 python ingest.py $(ls -1v lmod.log-* | head -n 1)
