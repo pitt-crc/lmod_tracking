@@ -1,5 +1,5 @@
 alembic==1.11.1
-mysql-connector-python==8.0.33
+mysqlclient==2.2.0
 pandas==2.0.2
 python-dotenv==1.0.0
 sqlalchemy==2.0.17

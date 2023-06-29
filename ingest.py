@@ -1,8 +1,40 @@
+#!/usr/bin/env python3
+"""Data ingestion utility for loading Lmod tracking data frm log files into a MySQL database."""
+
 import logging
+import os
+import sys
 from pathlib import Path
 
 import pandas as pd
 import sqlalchemy as sa
+from dotenv import load_dotenv
+
+
+def fetch_db_url() -> str:
+    """Fetch DB connection settings from environment variables
+
+    Returns:
+        A sqlalchemy compatible database URL
+
+    Raises:
+        RuntimeError: If the username or environment is not defined in the environment
+    """
+
+    # Load environmental variables from the .env file if it exists
+    load_dotenv()
+
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+    db_host = os.getenv('DB_HOST', default='localhost')
+    db_port = os.getenv('DB_PORT', default=3306)
+    db_name = os.getenv('DB_NAME', default='lmod')
+
+    if not (db_user and db_password):
+        logging.error('Database credentials not configured in the working environment')
+        raise RuntimeError('Database credentials not configured in the working environment')
+
+    return f'mysql+mysqldb://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
 
 def parse_log_data(path: Path | str) -> pd.DataFrame:
@@ -69,8 +101,6 @@ def ingest_data_to_db(data: pd.DataFrame, connection: sa.Connection) -> None:
         FROM scratch;
     """)
 
-    connection.commit()
-
     logging.info('updating usage table (4/4) ...')
     connection.exec_driver_sql('SET FOREIGN_KEY_CHECKS=0;')
     connection.exec_driver_sql("""
@@ -83,3 +113,20 @@ def ingest_data_to_db(data: pd.DataFrame, connection: sa.Connection) -> None:
     """)
 
     connection.commit()
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+
+    # Fetch the log file path from the console
+    if not sys.argv[1:]:
+        print('You must specify one or more log files to ingest')
+        exit(1)
+
+    for fpath in sys.argv[1:]:
+        logging.info(f'Ingesting {fpath}')
+        with sa.engine.create_engine(fetch_db_url()).connect() as connection:
+            ingest_data_to_db(
+                data=parse_log_data(fpath),
+                connection=connection
+            )

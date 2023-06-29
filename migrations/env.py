@@ -1,3 +1,5 @@
+"""Entry point and configuration file for running database migrations with ``alembic``."""
+
 import logging
 import os
 from logging.config import fileConfig
@@ -7,9 +9,6 @@ from dotenv import load_dotenv
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-# Load environmental variables from the .env file if it exists
-load_dotenv()
-
 # Load alembic settings from the alembic.ini file
 config = context.config
 
@@ -17,19 +16,31 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Fetch DB connection settings from the environment
-DB_USER = os.getenv('DB_USER')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_HOST = os.getenv('DB_HOST', default='localhost')
-DB_PORT = os.getenv('DB_PORT', default=3306)
-DB_NAME = os.getenv('DB_NAME', default='lmod')
-if not (DB_USER and DB_PASSWORD):
-    logging.critical('Database credentials not configured in the working environment')
-    exit(1)
 
-config.set_main_option(
-    'sqlalchemy.url',
-    f'mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}')
+def fetch_db_url() -> str:
+    """Fetch DB connection settings from environment variables
+
+    Returns:
+        A sqlalchemy compatible database URL
+
+    Raises:
+        RuntimeError: If the username or environment is not defined in the environment
+    """
+
+    # Load environmental variables from the .env file if it exists
+    load_dotenv()
+
+    db_user = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+    db_host = os.getenv('DB_HOST', default='localhost')
+    db_port = os.getenv('DB_PORT', default=3306)
+    db_name = os.getenv('DB_NAME', default='lmod')
+
+    if not (db_user and db_password):
+        logging.error('Database credentials not configured in the working environment')
+        raise RuntimeError('Database credentials not configured in the working environment')
+
+    return f'mysql+mysqldb://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
 
 def run_migrations_offline() -> None:
@@ -70,13 +81,12 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=None
-        )
-
+        context.configure(connection=connection, target_metadata=None)
         with context.begin_transaction():
             context.run_migrations()
 
+
+config.set_main_option('sqlalchemy.url', fetch_db_url())
 
 if context.is_offline_mode():
     run_migrations_offline()
