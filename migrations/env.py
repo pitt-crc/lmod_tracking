@@ -40,7 +40,7 @@ def fetch_db_url() -> str:
         logging.error('Database credentials not configured in the working environment')
         exit(1)
 
-    return f'mysql+mysqldb://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+    return f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
 
 def run_migrations_offline() -> None:
