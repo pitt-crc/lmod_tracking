@@ -1,7 +1,7 @@
 # LMOD Usage Tracking
 [![](https://app.codacy.com/project/badge/Grade/da5fd23a62874c989f9b80ba201af924)](https://app.codacy.com/gh/pitt-crc/lmod_tracking/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
-Lmod provides [official support](https://lmod.readthedocs.io/en/latest/300_tracking_module_usage.html) for tracking
+Lmod provides [official support](https://lmod.readthedocs.io/en/latest/300_tracking_load.html) for tracking
 module usage via the system log.
 This repository provides scripts and utilities for ingesting the resulting log data into a MySQL database.
 
@@ -29,7 +29,7 @@ Apr 27 03:22:57 node1 ModuleUsageTracking: user=usr123 module=gcc/5.4.0 path=/mo
 ```
 
 At the time of writing, this is the same format suggested by
-the [official Lmod documentation](https://lmod.readthedocs.io/en/latest/300_tracking_module_usage.html).
+the [official Lmod documentation](https://lmod.readthedocs.io/en/latest/300_tracking_load.html).
 If your format differs from the above, it can be changed via the `SitePackage.lua` file.
 
 ### Database Connection Settings
@@ -95,16 +95,16 @@ However, a few useful examples are provided below.
 ### General Usage Overview
 
 ```mysql
-CREATE VIEW overview AS
+CREATE VIEW module_usage AS
     SELECT
         user.name as user,
         package.name as package,
         package.version,
-        module_usage.load_time
+        module_load.load_time
     FROM
-        module_usage
-    JOIN user ON user.id = module_usage.user_id
-    JOIN package ON package.id = module_usage.package_id;
+        module_load
+    JOIN user ON user.id = module_load.user_id
+    JOIN package ON package.id = module_load.package_id;
 ```
 
 ### Usage Counts by Package
@@ -117,15 +117,14 @@ CREATE VIEW package_count AS
     SELECT 
         package.name AS package,
         COUNT(*)     AS count,
-        mu.max_date  AS last_load
+        max_date  AS last_load
     FROM 
-        module_usage
-    JOIN package ON package.id = module_usage.package_id
-    JOIN (SELECT MAX(load_time) AS max_date FROM module_usage) AS mu
+        module_load
+    JOIN package ON package.id = module_load.package_id
+    JOIN (SELECT MAX(load_time) AS max_date FROM module_load) AS mu
     GROUP BY 
-        package.name, 
-        mu.max_date
-    ORDER BY count DESC;
+        package.name
+    ORDER BY package;
 ```
 
 ### Usage Counts by Package and Version
@@ -138,14 +137,13 @@ CREATE VIEW package_version_count AS
     SELECT package.name    AS package,
         package.version AS version,
         COUNT(*)        AS count,
-        mu.max_date     AS last_load
+        max_date     AS last_load
     FROM 
-        module_usage
-    JOIN package ON package.id = module_usage.package_id
-    JOIN (SELECT MAX(load_time) AS max_date FROM module_usage) AS mu
+        module_load
+    JOIN package ON package.id = module_load.package_id
+    JOIN (SELECT MAX(load_time) AS max_date FROM module_load) AS mu
     GROUP BY 
         package.name, 
-        package.version, 
-        mu.max_date
-    ORDER BY count DESC;
+        package.version
+    ORDER BY package;
 ```
