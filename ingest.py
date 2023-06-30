@@ -105,7 +105,6 @@ def ingest_data_to_db(data: pd.DataFrame, connection: sa.Connection) -> None:
     """)
 
     logging.info('updating usage table (4/4) ...')
-    connection.exec_driver_sql('SET FOREIGN_KEY_CHECKS=0;')
     connection.exec_driver_sql("""
         INSERT IGNORE INTO module_usage (user_id, host_id, package_id, load_time)
         SELECT user.id as user_id, host.id as host_id, package.id as package_id, scratch.time as load_time

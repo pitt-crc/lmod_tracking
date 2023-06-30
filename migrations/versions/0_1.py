@@ -44,6 +44,7 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['host_id'], ['host.id'], ),
         sa.ForeignKeyConstraint(['package_id'], ['package.id'], ),
         sa.UniqueConstraint('user_id', 'host_id', 'package_id', 'load_time'),
+        sa.Index('combined_index', 'user_id', 'host_id', 'package_id'),
         sa.PrimaryKeyConstraint('id'))
 
 
