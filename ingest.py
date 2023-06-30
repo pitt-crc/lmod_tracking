@@ -125,10 +125,12 @@ if __name__ == '__main__':
         print('You must specify one or more log files to ingest')
         exit(1)
 
+    engine = sa.engine.create_engine(fetch_db_url())
     for fpath in sys.argv[1:]:
         logging.info(f'Ingesting {fpath}')
-        with sa.engine.create_engine(fetch_db_url()).connect() as db_connection:
-            ingest_data_to_db(
-                data=parse_log_data(fpath),
-                connection=db_connection
-            )
+        connection = engine.connect()
+        ingest_data_to_db(
+            data=parse_log_data(fpath),
+            connection=connection
+        )
+        connection.close()
