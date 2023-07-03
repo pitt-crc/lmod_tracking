@@ -43,20 +43,8 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
         sa.ForeignKeyConstraint(['host_id'], ['host.id'], ),
         sa.ForeignKeyConstraint(['package_id'], ['package.id'], ),
-        sa.UniqueConstraint('user_id', 'host_id', 'package_id', 'load_time'),
         sa.Index('combined_index', 'user_id', 'host_id', 'package_id'),
         sa.PrimaryKeyConstraint('id'))
-
-    op.create_table(
-        'scratch',
-        sa.Column('user', sa.VARCHAR(100), nullable=False),
-        sa.Column('module', sa.VARCHAR(200), nullable=False),
-        sa.Column('path', sa.VARCHAR(200), nullable=False, unique=True),
-        sa.Column('node', sa.VARCHAR(100), nullable=False),
-        sa.Column('time', DATETIME(fsp=6), nullable=False),
-        sa.Column('package', sa.VARCHAR(100), nullable=False, index=True),
-        sa.Column('version', sa.VARCHAR(100), nullable=True),
-    )
 
 
 def downgrade() -> None:
