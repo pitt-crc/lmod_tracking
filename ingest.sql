@@ -1,6 +1,5 @@
 # The scratch table is used to temporarily hold data loaded from disk while it is ingested into the DB schema
-DROP TABLE IF EXISTS scratch;
-CREATE TABLE scratch
+CREATE TEMPORARY TABLE scratch
 (
     month   CHAR(3),
     day     INTEGER,
