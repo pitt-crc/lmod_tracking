@@ -55,12 +55,12 @@ SOURCE create_views.sql;
 ### Database Connection Settings
 
 When operating in production, it is recommended to ingest data using a service account.
-The following snippet creates a service account `lmod_service` with access to the `lmod` database.
+The following snippet creates a service account `lmod_ingest` with access to the `lmod` database.
 Make sure to replace the password `password123` with a secure alternative.
 
 ```mariadb
-CREATE USER 'lmod_service'@'localhost' IDENTIFIED BY 'password123';
-GRANT ALL PRIVILEGES ON lmod.* TO 'lmod_service'@'localhost';
+CREATE USER 'lmod_ingest'@'localhost' IDENTIFIED BY 'password123';
+GRANT ALL PRIVILEGES ON lmod.* TO 'lmod_ingest'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -69,7 +69,7 @@ MariaDB provides built-in support for loading default connection settings from d
 ```toml
 [client]
 database=lmod
-user=lmod_service
+user=lmod_ingest
 password=password
 ```
 
