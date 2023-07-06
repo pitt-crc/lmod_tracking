@@ -39,8 +39,8 @@ SQL scripts are provided for automating database setup tasks.
 The `create_tables.sql` file will automatically create any database tables required by this project.
 
 ```mariadb
-CREATE DATABASE lmod;
-USE lmod;
+CREATE DATABASE lmod_tracking;
+USE lmod_tracking;
 SOURCE create_tables.sql;
 ```
 
@@ -55,12 +55,12 @@ SOURCE create_views.sql;
 ### Database Connection Settings
 
 When operating in production, it is recommended to ingest data using a service account.
-The following snippet creates a service account `lmod_ingest` with access to the `lmod` database.
+The following snippet creates a service account `lmod_ingest` with access to the `lmod_tracking` database.
 Make sure to replace the password `password123` with a secure alternative.
 
 ```mariadb
 CREATE USER 'lmod_ingest'@'localhost' IDENTIFIED BY 'password123';
-GRANT ALL PRIVILEGES ON lmod.* TO 'lmod_ingest'@'localhost';
+GRANT ALL PRIVILEGES ON lmod_tracking.* TO 'lmod_ingest'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
@@ -68,7 +68,7 @@ MariaDB provides built-in support for loading default connection settings from d
 
 ```toml
 [client]
-database=lmod
+database=lmod_tracking
 user=lmod_ingest
 password=password
 ```
