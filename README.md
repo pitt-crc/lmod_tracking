@@ -38,7 +38,6 @@ If your format differs from the above, it can be changed via the `SitePackage.lu
 SQL scripts are provided for automating database setup tasks.
 The `create_tables.sql` file will automatically create any database tables required by this project.
 
-
 ```mariadb
 CREATE DATABASE lmod;
 USE lmod;
@@ -84,7 +83,6 @@ mysql --defaults-file=db.cnf ...
 
 The `ingest_data.sql` script parses data from a log file `lmod.log` and migrates the data into the database schema. To run it from the command line:
 
-
 ```bash
 mysql --defaults-file=db.cnf < ingest_data.sql
 ```
@@ -100,4 +98,3 @@ recent_file=$(ls -r lmod.log-* | head -n 1)
 # Replace `lmod.log` with the new file path and execute the resulting sql 
 sed "s|lmod.log|$recent_file|g" ingest_data.sql | mysql --defaults-file=db.cnf -vvv
 ```
-
