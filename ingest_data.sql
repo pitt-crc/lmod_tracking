@@ -35,7 +35,7 @@ INSERT IGNORE INTO package (name, version, path)
     FROM scratch;
 
 -- Perform joins to determine foreign key values and insert the results into the `module_load` table
-INSERT INTO module_load (user_id, host_id, package_id, load_time)
+INSERT IGNORE INTO module_load (user_id, host_id, package_id, load_time)
     SELECT
         user.id as user_id,
         host.id as host_id,
