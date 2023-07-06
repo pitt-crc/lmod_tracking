@@ -66,7 +66,7 @@ FLUSH PRIVILEGES;
 
 MariaDB provides built-in support for loading default connection settings from disk. In a `db.cnf` file, store your chosen credentials using the following format:
 
-```toml
+```conf
 [client]
 database=lmod_tracking
 user=lmod_ingest
