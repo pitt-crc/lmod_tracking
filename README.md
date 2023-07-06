@@ -94,7 +94,7 @@ The data ingestion script is idempotent and may be run multiple times without ge
 If you are rotating your log files and wish to ingest data automatically (e.g., via a cron job), the following code snippet may be useful:
 
 ```bash
-# Determine the most recently rtated log file by its name
+# Determine the most recently rotated log file by its name
 recent_file=$(ls -r lmod.log-* | head -n 1)
 
 # Replace `lmod.log` with the new file path and execute the resulting sql 
