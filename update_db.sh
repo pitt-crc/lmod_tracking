@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Determine the most recently rotated log file by its name
 recent_file=$(ls -r lmod.log-* | head -n 1)
 
