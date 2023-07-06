@@ -1,2 +1,5 @@
-sed "s|lmod.log|$log_path|g" $1 | mysql --defaults-file=db.cnf -vvv
+# Determine the most recently rtated log file by its name
+recent_file=$(ls -r lmod.log-* | head -n 1)
 
+# Replace `lmod.log` with the new file path and execute the resulting sql
+sed "s|lmod.log|$recent_file|g" ingest_data.sql | mysql --defaults-file=db.cnf -vvv
