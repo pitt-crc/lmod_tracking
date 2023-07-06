@@ -36,5 +36,6 @@ CREATE TABLE `module_load`
     CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),
     CONSTRAINT `fk_host_id` FOREIGN KEY (`host_id`) REFERENCES `host` (`id`),
     CONSTRAINT `fk_package_id` FOREIGN KEY (`package_id`) REFERENCES `package` (`id`),
+    CONSTRAINT `unique_package_load` UNIQUE (user_id, host_id, package_id, load_time),
     INDEX `idx_package_id` (`package_id`)
 );
