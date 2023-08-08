@@ -38,7 +38,7 @@ def fetch_db_url() -> str:
     return f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
 
-def parse_log_data(path: Path | str) -> pd.DataFrame:
+def parse_log_data(path: Path) -> pd.DataFrame:
     """Parse, format, and return data from an Lmod log file
 
     Args:
@@ -64,6 +64,7 @@ def parse_log_data(path: Path | str) -> pd.DataFrame:
 
     # Split the module name into package names and versions
     log_data[['package', 'version']] = log_data.module.str.split('/', n=1, expand=True)
+
     log_data['logname'] = path.name
     return log_data.dropna(subset=['user'])
 
