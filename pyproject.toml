@@ -5,7 +5,7 @@ description = "Data ingestion utility for loading Lmod tracking logs into a MySQ
 authors = ["Pitt Center for Research Computing"]
 license = "GPLv3"
 readme = "README.md"
-packages = [{include = "ingest.py"}]
+packages = [{include = "lmod_ingest.py"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -17,7 +17,7 @@ python-dotenv = "1.0.0"
 sqlalchemy = "2.0.17"
 
 [tool.poetry.scripts]
-lmod_ingest = "ingest:main"
+lmod_ingest = "lmod_ingest:main"
 
 [build-system]
 requires = ["poetry-core"]
