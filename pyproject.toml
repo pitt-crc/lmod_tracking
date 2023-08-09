@@ -3,9 +3,22 @@ name = "lmod_ingest"
 version = "0.1.0"
 description = "Data ingestion utility for loading Lmod tracking logs into a MySQL database."
 authors = ["Pitt Center for Research Computing"]
+homepage = "https://github.com/pitt-crc/lmod_tracking"
+repository = "https://github.com/pitt-crc/lmod_tracking"
 license = "GPLv3"
 readme = "README.md"
 packages = [{include = "lmod_ingest.py"}]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Topic :: Database",
+    "Topic :: System :: Monitoring",
+    "Typing :: Typed"
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
