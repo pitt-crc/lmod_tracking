@@ -69,32 +69,19 @@ def parse_log_data(path: Path) -> pd.DataFrame:
     return log_data.dropna(subset=['user'])
 
 
-def insert_on_duplicate(table, conn, keys, data_iter):
-    """Helper function for pandas SQL uploads
-
-    Enables upsert functionality for SQL inserts.
-    """
-
-    insert_stmt = insert(table.table).values(list(data_iter))
-    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(insert_stmt.inserted)
-    conn.execute(on_duplicate_key_stmt)
-
-
-def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection, chunksize=250) -> None:
+def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) -> None:
     """Ingest data into a database
 
     Args:
         data: A DataFrame returned by ``parse_log_data``
         name: Name of the database to ingest to
         connection: An open database connection
-        chunksize: The number of rows in each batch to be written at a time.
     """
 
-    # Upload data into a temporary scratch table
-    logging.info('loading data into scratch table ...')
-    data.to_sql(
-        name=name, con=connection, chunksize=chunksize,
-        if_exists='append', index_label='id', method=insert_on_duplicate)
+    table = sa.Table(name, sa.MetaData(), autoload_with=connection.engine)
+    insert_stmt = insert(table).values(data.to_dict(orient="records"))
+    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(insert_stmt.inserted)
+    connection.execute(on_duplicate_key_stmt)
 
 
 if __name__ == '__main__':
