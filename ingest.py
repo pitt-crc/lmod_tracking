@@ -34,6 +34,8 @@ def fetch_db_url() -> str:
         RuntimeError: If the username or password is not defined in the environment
     """
 
+    logging.info('Fetching database connection details')
+
     db_user = os.getenv('DB_USER')
     db_password = os.getenv('DB_PASSWORD')
     db_host = os.getenv('DB_HOST', default='localhost')
@@ -55,6 +57,8 @@ def parse_log_data(path: Path) -> pd.DataFrame:
     Returns:
         A DataFrame with the parsed data
     """
+
+    logging.info(f'Parsing log data')
 
     # Expect columns to be seperated by whitespace and use ``=`` as a secondary
     # delimiter to automatically split up strings like "user=admin123" into two columns
@@ -85,6 +89,8 @@ def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) 
         name: Name of the database to ingest to
         connection: An open database connection
     """
+
+    logging.info(f'Ingesting records into table {name}')
 
     table = sa.Table(name, sa.MetaData(), autoload_with=connection.engine)
     insert_stmt = insert(table).values(data.to_dict(orient="records"))
