@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "lmod_ingest"
+version = "0.1.0"
+description = "Data ingestion utility for loading Lmod tracking logs into a MySQL database."
+authors = ["Pitt Center for Research Computing"]
+license = "GPLv3"
+readme = "README.md"
+packages = [{include = "ingest.py"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+alembic = "1.11.1"
+docopt = "0.6.2"
+mysql-connector-python = "8.0.33"
+pandas = "2.0.2"
+python-dotenv = "1.0.0"
+sqlalchemy = "2.0.17"
+
+[tool.poetry.scripts]
+lmod_ingest = "ingest:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
