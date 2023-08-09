@@ -9,6 +9,10 @@ from pathlib import Path
 import pandas as pd
 import sqlalchemy as sa
 from dotenv import load_dotenv
+from sqlalchemy.dialects.mysql import insert
+
+# Load environmental variables from the .env file if it exists
+load_dotenv()
 
 
 def fetch_db_url() -> str:
@@ -20,9 +24,6 @@ def fetch_db_url() -> str:
     Raises:
         RuntimeError: If the username or password is not defined in the environment
     """
-
-    # Load environmental variables from the .env file if it exists
-    load_dotenv()
 
     db_user = os.getenv('DB_USER')
     db_password = os.getenv('DB_PASSWORD')
@@ -37,11 +38,8 @@ def fetch_db_url() -> str:
     return f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
 
-def parse_log_data(path: Path | str) -> pd.DataFrame:
-    """Parse, format, and return data from a Lmod log file
-
-    he returned DataFrame includes columns for ``user``, ``module``, ``path``,
-    ``node``, ``time``, ``package``, and ``version``.
+def parse_log_data(path: Path) -> pd.DataFrame:
+    """Parse, format, and return data from an Lmod log file
 
     Args:
         path: The log file path to parse
@@ -57,7 +55,7 @@ def parse_log_data(path: Path | str) -> pd.DataFrame:
         sep=r'\s+|=',
         header=None,
         usecols=range(6, 15, 2),
-        names=['user', 'module', 'path', 'node', 'time'],
+        names=['user', 'module', 'path', 'host', 'time'],
         engine='python'
     )
 
@@ -66,55 +64,24 @@ def parse_log_data(path: Path | str) -> pd.DataFrame:
 
     # Split the module name into package names and versions
     log_data[['package', 'version']] = log_data.module.str.split('/', n=1, expand=True)
+
+    log_data['logname'] = path.name
     return log_data.dropna(subset=['user'])
 
 
-def ingest_data_to_db(data: pd.DataFrame, connection: sa.Connection) -> None:
+def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) -> None:
     """Ingest data into a database
 
     Args:
         data: A DataFrame returned by ``parse_log_data``
+        name: Name of the database to ingest to
         connection: An open database connection
     """
 
-    # Upload data into a temporary scratch table
-    logging.info('loading data into scratch table ...')
-    data.to_sql(name='scratch', con=connection, if_exists='replace', index_label='id')
-
-    # Move data from scratch table into other tables in accordance with the DB schema
-    # We use ``INSERT IGNORE`` instead of ``ON DUPLICATE KEY UPDATE`` for the better performance
-    logging.info('updating user table (1/4) ...')
-    connection.exec_driver_sql("""
-        INSERT IGNORE INTO user (name)
-        SELECT user AS name
-        FROM scratch;
-    """)
-
-    logging.info('updating package table (2/4) ...')
-    connection.exec_driver_sql("""
-        INSERT IGNORE INTO package (name, version, path)
-        SELECT package AS name, version, path
-        FROM scratch;
-    """)
-
-    logging.info('updating host table (2/4) ...')
-    connection.exec_driver_sql("""
-        INSERT IGNORE INTO host (name)
-        SELECT node AS name
-        FROM scratch;
-    """)
-
-    logging.info('updating usage table (4/4) ...')
-    connection.exec_driver_sql("""
-        INSERT INTO module_load (user_id, host_id, package_id, load_time)
-        SELECT user.id as user_id, host.id as host_id, package.id as package_id, scratch.time as load_time
-        FROM scratch
-        JOIN user ON user.name = scratch.user
-        JOIN host ON host.name = scratch.node
-        JOIN package ON package.name = scratch.package;
-    """)
-
-    connection.commit()
+    table = sa.Table(name, sa.MetaData(), autoload_with=connection.engine)
+    insert_stmt = insert(table).values(data.to_dict(orient="records"))
+    on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(insert_stmt.inserted)
+    connection.execute(on_duplicate_key_stmt)
 
 
 if __name__ == '__main__':
@@ -127,10 +94,9 @@ if __name__ == '__main__':
 
     engine = sa.engine.create_engine(fetch_db_url())
     for fpath in sys.argv[1:]:
+        fpath = Path(fpath)
+
         logging.info(f'Ingesting {fpath}')
-        connection = engine.connect()
-        ingest_data_to_db(
-            data=parse_log_data(fpath),
-            connection=connection
-        )
-        connection.close()
+        with engine.connect() as connection:
+            data = parse_log_data(fpath)
+            ingest_data_to_db(data, 'log_data', connection=connection)

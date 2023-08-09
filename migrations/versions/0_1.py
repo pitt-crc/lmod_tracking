@@ -14,40 +14,21 @@ def upgrade() -> None:
     """Upgrade from previous database versions to the current revision"""
 
     op.create_table(
-        'user',
-        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True, nullable=False),
-        sa.Column('name', sa.VARCHAR(100), nullable=False, unique=True, index=True),
-        sa.PrimaryKeyConstraint('id'))
-
-    op.create_table(
-        'package',
-        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True, nullable=False),
-        sa.Column('name', sa.VARCHAR(100), nullable=False, index=True),
-        sa.Column('version', sa.VARCHAR(100), nullable=True),
-        sa.Column('path', sa.VARCHAR(200), nullable=False, unique=True),
-        sa.PrimaryKeyConstraint('id'))
-
-    op.create_table(
-        'host',
-        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True, nullable=False),
-        sa.Column('name', sa.VARCHAR(100), nullable=False, unique=True, index=True),
-        sa.PrimaryKeyConstraint('id'))
-
-    op.create_table(
-        'module_load',
-        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True, nullable=False),
-        sa.Column('user_id', sa.Integer(), nullable=False, index=True),
-        sa.Column('host_id', sa.Integer(), nullable=False, index=True),
-        sa.Column('package_id', sa.Integer(), nullable=False, index=True),
-        sa.Column('load_time', DATETIME(fsp=6), nullable=False),
-        sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-        sa.ForeignKeyConstraint(['host_id'], ['host.id'], ),
-        sa.ForeignKeyConstraint(['package_id'], ['package.id'], ),
-        sa.Index('combined_index', 'user_id', 'host_id', 'package_id'),
-        sa.PrimaryKeyConstraint('id'))
+        'log_data',
+        sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
+        sa.Column('logname', sa.String(255), nullable=False),
+        sa.Column('time', DATETIME(fsp=6), nullable=False),
+        sa.Column('host', sa.String(255), nullable=False),
+        sa.Column('user', sa.String(50), nullable=False),
+        sa.Column('module', sa.String(100), nullable=False),
+        sa.Column('path', sa.String(4096), nullable=False),
+        sa.Column('version', sa.String(150), nullable=False),
+        sa.Column('package', sa.String(100), nullable=False),
+        sa.UniqueConstraint('time', 'host', 'user', 'module', name='unq_log_entry')
+    )
 
 
 def downgrade() -> None:
     """Downgrade from the current database versions to the previous revision"""
 
-    raise RuntimeError('There is no revision below this version to revert to.')
+    raise RuntimeError('There is no database revision below version 0.1.')
