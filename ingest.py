@@ -1,15 +1,25 @@
-#!/usr/bin/env python3
-"""Data ingestion utility for loading Lmod tracking data from log files into a MySQL database."""
+"""Data ingestion utility for loading Lmod tracking logs into a MySQL database.
+
+Usage:
+  ingest.py <path>
+
+Options:
+  <path>     Path of the log data to ingest
+  -h --help  Show this help text
+"""
 
 import logging
 import os
-import sys
+import time
 from pathlib import Path
 
 import pandas as pd
 import sqlalchemy as sa
+from docopt import docopt
 from dotenv import load_dotenv
 from sqlalchemy.dialects.mysql import insert
+
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 # Load environmental variables from the .env file if it exists
 load_dotenv()
@@ -25,6 +35,8 @@ def fetch_db_url() -> str:
         RuntimeError: If the username or password is not defined in the environment
     """
 
+    logging.info('Fetching database connection details')
+
     db_user = os.getenv('DB_USER')
     db_password = os.getenv('DB_PASSWORD')
     db_host = os.getenv('DB_HOST', default='localhost')
@@ -32,8 +44,7 @@ def fetch_db_url() -> str:
     db_name = os.getenv('DB_NAME', default='lmod')
 
     if not (db_user and db_password):
-        logging.error('Database credentials not configured in the working environment')
-        exit(1)
+        raise ValueError('Database credentials (DB_USER, DB_PASSWORD) not configured in the working environment')
 
     return f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
@@ -47,6 +58,8 @@ def parse_log_data(path: Path) -> pd.DataFrame:
     Returns:
         A DataFrame with the parsed data
     """
+
+    logging.info(f'Parsing log data')
 
     # Expect columns to be seperated by whitespace and use ``=`` as a secondary
     # delimiter to automatically split up strings like "user=admin123" into two columns
@@ -79,24 +92,36 @@ def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) 
     """
 
     table = sa.Table(name, sa.MetaData(), autoload_with=connection.engine)
+
+    logging.info(f'Ingesting data into database table {connection.engine.url.database}.{table.name}')
+    start = time.time()
+
     insert_stmt = insert(table).values(data.to_dict(orient="records"))
     on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(insert_stmt.inserted)
     connection.execute(on_duplicate_key_stmt)
 
+    logging.info(f'Ingested {len(data)} log entries in {time.time() - start:.2f} seconds')
+
+
+def main():
+    """The primary application entrypoint
+
+    Parse commandline arguments and ingest data from the resulting file path
+    into the database.
+    """
+
+    arguments = docopt(__doc__)
+    path = Path(arguments['<path>'])
+
+    try:
+        db_engine = sa.engine.create_engine(url=fetch_db_url())
+        with db_engine.connect() as connection:
+            data = parse_log_data(path)
+            ingest_data_to_db(data, 'log_data', connection=connection)
+
+    except Exception as caught:
+        logging.error(str(caught))
+
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-
-    # Fetch the log file path from the console
-    if not sys.argv[1:]:
-        print('You must specify one or more log files to ingest')
-        exit(1)
-
-    engine = sa.engine.create_engine(fetch_db_url())
-    for fpath in sys.argv[1:]:
-        fpath = Path(fpath)
-
-        logging.info(f'Ingesting {fpath}')
-        with engine.connect() as connection:
-            data = parse_log_data(fpath)
-            ingest_data_to_db(data, 'log_data', connection=connection)
+    main()
