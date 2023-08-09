@@ -38,7 +38,7 @@ def fetch_db_url() -> str:
     logging.info('Fetching database connection details')
 
     db_user = os.getenv('DB_USER')
-    db_password = os.getenv('DB_PASSWORD')
+    db_password = os.getenv('DB_PASS')
     db_host = os.getenv('DB_HOST', default='localhost')
     db_port = os.getenv('DB_PORT', default=3306)
     db_name = os.getenv('DB_NAME', default='lmod')
