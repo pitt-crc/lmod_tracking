@@ -99,6 +99,7 @@ def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) 
     insert_stmt = insert(table).values(data.to_dict(orient="records"))
     on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(insert_stmt.inserted)
     connection.execute(on_duplicate_key_stmt)
+    connection.commit()
 
     logging.info(f'Ingested {len(data)} log entries in {time.time() - start:.2f} seconds')
 
