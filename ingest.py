@@ -10,6 +10,7 @@ Options:
 
 import logging
 import os
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -90,12 +91,16 @@ def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) 
         connection: An open database connection
     """
 
-    logging.info(f'Ingesting records into table {name}')
-
     table = sa.Table(name, sa.MetaData(), autoload_with=connection.engine)
+
+    logging.info(f'Ingesting data into database table {connection.engine.url.database}.{table.name}')
+    start = time.time()
+
     insert_stmt = insert(table).values(data.to_dict(orient="records"))
     on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(insert_stmt.inserted)
     connection.execute(on_duplicate_key_stmt)
+
+    logging.info(f'Ingested {len(data)} log entries in {time.time() - start:.2f} seconds')
 
 
 def main():
