@@ -92,7 +92,13 @@ def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) 
     connection.execute(on_duplicate_key_stmt)
 
 
-if __name__ == '__main__':
+def main():
+    """The primary application entrypoint
+
+    Parse commandline arguments and ingest data from the resulting file path
+    into the database.
+    """
+
     arguments = docopt(__doc__)
     path = Path(arguments['<path>'])
 
@@ -104,3 +110,7 @@ if __name__ == '__main__':
 
     except Exception as caught:
         logging.error(str(caught))
+
+
+if __name__ == '__main__':
+    main()
