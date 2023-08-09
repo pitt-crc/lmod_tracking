@@ -1,4 +1,4 @@
-"""Alembic schema migration for database schema version 0.1 with custom views enabled."""
+"""Alembic migration script for database schema version 0.1 with custom views enabled."""
 
 from alembic import op
 
@@ -9,7 +9,7 @@ depends_on = '0.1'
 
 
 def upgrade() -> None:
-    """Upgrade the database to this schema version"""
+    """Upgrade the database schema"""
 
     op.execute("""
         CREATE VIEW package_count AS
@@ -41,7 +41,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Undo changes implemented when upgrading to this schema version"""
+    """Revert changes made to the database schema while upgrading"""
 
     op.execute("DROP VIEW package_count;")
     op.execute("DROP VIEW package_version_count;")

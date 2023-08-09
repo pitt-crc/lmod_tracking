@@ -1,4 +1,4 @@
-"""Entry point and configuration file for running database migrations with ``alembic``."""
+"""Entrypoint for running database migrations with ``alembic``."""
 
 import logging.config
 

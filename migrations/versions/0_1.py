@@ -1,4 +1,4 @@
-"""Alembic schema migration for database schema version 0.1."""
+"""Alembic migration script for database schema version 0.1."""
 
 import sqlalchemy as sa
 from alembic import op
@@ -11,7 +11,7 @@ depends_on = None
 
 
 def upgrade() -> None:
-    """Upgrade the database to this schema version"""
+    """Upgrade the database schema"""
 
     op.create_table(
         'log_data',
@@ -29,6 +29,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    """Undo changes implemented when upgrading to this schema version"""
+    """Revert changes made to the database schema while upgrading"""
 
     op.execute("DROP TABLE log_data;")
