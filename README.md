@@ -87,11 +87,3 @@ The ingestion script can safely be run multiple times on the same log file witho
 ```bash
 lmod-ingest ingest lmog.log
 ```
-
-The following example assumes you are logging to `lmod.log` and rotating files using the naming
-scheme `lmod.log-YYYYMMDD`.
-
-```bash
-python ingest.py $(ls -1v lmod.log-* | head -n 1)
-```
-
