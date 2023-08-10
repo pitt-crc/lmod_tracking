@@ -1,18 +1,18 @@
 """Entry point and configuration file for running database migrations with ``alembic``."""
 
-import logging.config
+from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import pool, engine_from_config
 
-from lmod_ingest import fetch_db_url
-
-# Load alembic settings from the alembic.ini file
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
 config = context.config
-config.set_main_option('sqlalchemy.url', fetch_db_url())
+
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
 if config.config_file_name is not None:
-    logging.config.fileConfig(config.config_file_name)
+    fileConfig(config.config_file_name)
 
 
 def run_migrations_offline() -> None:

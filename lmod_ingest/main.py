@@ -53,11 +53,7 @@ def migrate() -> None:
 
 
 def main():
-    """The primary application entrypoint
-
-    Parse commandline arguments and ingest data from the resulting file path
-    into the database.
-    """
+    """Parse command line arguments and execute the application"""
 
     arguments = docopt(__doc__)
 
