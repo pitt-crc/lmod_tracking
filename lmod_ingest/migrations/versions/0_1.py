@@ -27,8 +27,38 @@ def upgrade() -> None:
         sa.UniqueConstraint('time', 'host', 'user', 'module', name='unq_log_entry')
     )
 
+    op.execute("""
+        CREATE VIEW package_count AS
+            SELECT
+                package,
+                COUNT(*) AS total,
+                time AS lastload
+            FROM
+                log_data
+            GROUP BY
+                package
+            ORDER BY package DESC;
+    """)
+
+    op.execute("""
+        CREATE VIEW package_version_count AS
+            SELECT
+                package,
+                version,
+                COUNT(*) AS total,
+                time AS lastload
+            FROM
+                log_data
+            GROUP BY
+                package,
+                version
+            ORDER BY package, version DESC;
+    """)
+
 
 def downgrade() -> None:
     """Revert changes made to the database schema while upgrading"""
 
     op.execute("DROP TABLE log_data;")
+    op.execute("DROP VIEW package_count;")
+    op.execute("DROP VIEW package_version_count;")

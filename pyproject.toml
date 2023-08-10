@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "lmod_ingest"
+name = "lmod-ingest"
 version = "0.1.0"
 description = "Data ingestion utility for loading Lmod usage logs into a database."
 authors = ["Pitt Center for Research Computing"]
@@ -7,7 +7,7 @@ homepage = "https://github.com/pitt-crc/lmod_tracking"
 repository = "https://github.com/pitt-crc/lmod_tracking"
 license = "GPLv3"
 readme = "README.md"
-packages = [{include = "lmod_ingest.py"}]
+packages = [{include = "lmod_ingest"}]
 classifiers = [
     "Environment :: Console",
     "Intended Audience :: System Administrators",
@@ -30,7 +30,7 @@ python-dotenv = "1.0.0"
 sqlalchemy = "2.0.17"
 
 [tool.poetry.scripts]
-lmod_ingest = "lmod_ingest:main"
+lmod-ingest = "lmod_ingest.main:main"
 
 [build-system]
 requires = ["poetry-core"]
