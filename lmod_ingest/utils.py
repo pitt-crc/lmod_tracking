@@ -26,16 +26,19 @@ def fetch_db_url() -> str:
     db_password = os.getenv('DB_PASS')
     db_host = os.getenv('DB_HOST', default='localhost')
     db_port = os.getenv('DB_PORT', default=3306)
-    db_name = os.getenv('DB_NAME', default='lmod')
+    db_name = os.getenv('DB_NAME')
 
-    if not (db_user and db_password):
-        raise ValueError('Database credentials (DB_USER, DB_PASSWORD) not configured in the working environment')
+    if not (db_user and db_password and db_name):
+        raise ValueError('One or more environmental variables are not properly configured')
 
     return f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
 
 def parse_log_data(path: Path) -> pd.DataFrame:
     """Parse, format, and return data from an Lmod log file
+
+    The returned dataframe is formatted using the same data model assumed
+    by the ingestion database.
 
     Args:
         path: The log file path to parse
@@ -70,17 +73,22 @@ def parse_log_data(path: Path) -> pd.DataFrame:
 def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) -> None:
     """Ingest data into a database
 
+    The ``data`` argument is expected to follow the same data model as the
+    target database table.
+
     Args:
-        data: A DataFrame returned by ``parse_log_data``
-        name: Name of the database to ingest to
+        data: The data to ingest
+        name: Name of the database table to ingest into
         connection: An open database connection
     """
 
+    # Dynamically determine the table schema
     table = sa.Table(name, sa.MetaData(), autoload_with=connection.engine)
 
     logging.info(f'Ingesting data into database table {connection.engine.url.database}.{table.name}')
     start = time.time()
 
+    # Implicitly assume the `data` argument uses the same data model as the database table
     insert_stmt = insert(table).values(data.to_dict(orient="records"))
     on_duplicate_key_stmt = insert_stmt.on_duplicate_key_update(insert_stmt.inserted)
     connection.execute(on_duplicate_key_stmt)

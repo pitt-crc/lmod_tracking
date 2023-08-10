@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "lmod-ingest"
 version = "0.1.0"
-description = "Data ingestion utility for loading Lmod tracking logs into a MySQL database."
+description = "Data ingestion utility for loading Lmod usage logs into a database."
 authors = ["Pitt Center for Research Computing"]
 homepage = "https://github.com/pitt-crc/lmod_tracking"
 repository = "https://github.com/pitt-crc/lmod_tracking"
