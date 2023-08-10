@@ -44,10 +44,10 @@ def fetch_db_url() -> str:
     db_password = os.getenv('DB_PASS')
     db_host = os.getenv('DB_HOST', default='localhost')
     db_port = os.getenv('DB_PORT', default=3306)
-    db_name = os.getenv('DB_NAME', default='lmod')
+    db_name = os.getenv('DB_NAME')
 
-    if not (db_user and db_password):
-        raise ValueError('Environmental variables (DB_USER, DB_PASS) are not properly configured')
+    if not (db_user and db_password and db_name):
+        raise ValueError('One or more environmental variables are not properly configured')
 
     return f'mysql+mysqlconnector://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
