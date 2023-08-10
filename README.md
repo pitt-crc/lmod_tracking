@@ -14,10 +14,10 @@ These instructions assume the following conditions are already met:
 - A MySQL server is installed and configured with valid user credentials.
 
 In the sections below you will:
+
 1. Ensure your log entries are properly formatted
 2. Configure your database connection settings
-3. Migrate your database to the necessary schema
-4. Run the data ingestion
+3. Install and run the `lmod-ingest` commandline utility
 
 ### Lmod Log Formatting
 
@@ -59,17 +59,35 @@ DB_PASS=password123
 DB_NAME=lmod_tracking
 ```
 
-## Ingesting Data
+## Application Setup and Execution
 
-Use the `ingest.py` script to ingest data into the database by specifying one or more log files to ingest:
+The `lmod-ingest` utility is pip installable:
 
 ```bash
-python ingest.py lmod.log 
+pip install crc-lmod-ingest
+lmod-ingest --help
 ```
 
+Once installed, the necessary database schema can be applied using the `migrate` command.
+Before running the command, make sure you have already created a `.env` file as described in the previous step.
+The `--sql` option can be used to perform an initial dry run and priunt the migration SQL lgic without modifying the
+database.
+
+```bash
+# Print the migratin SQL cmmands
+lmod-ingest migrate --sql
+
+# Execute the migration
+lmod-ingest migrate
+```
+
+Use the `ingest` command to load ny desired log files into the application database.
 The ingestion script can safely be run multiple times on the same log file without ingesting duplicate data.
 
-It is recommended to set up daily log file rotations and use cron to ingest the most recent log file.
+```bash
+lmod-ingest ingest lmog.log
+```
+
 The following example assumes you are logging to `lmod.log` and rotating files using the naming
 scheme `lmod.log-YYYYMMDD`.
 
