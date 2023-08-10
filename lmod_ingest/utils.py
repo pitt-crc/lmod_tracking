@@ -1,13 +1,3 @@
-"""Data ingestion utility for loading Lmod tracking logs into a MySQL database.
-
-Usage:
-  ingest.py <path>
-
-Options:
-  <path>     Path of the log data to ingest
-  -h --help  Show this help text
-"""
-
 import logging
 import os
 import time
@@ -15,14 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import sqlalchemy as sa
-from docopt import docopt
-from dotenv import load_dotenv
 from sqlalchemy.dialects.mysql import insert
-
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-
-# Load environmental variables from the .env file if it exists
-load_dotenv()
 
 
 def fetch_db_url() -> str:
@@ -102,27 +85,3 @@ def ingest_data_to_db(data: pd.DataFrame, name: str, connection: sa.Connection) 
     connection.commit()
 
     logging.info(f'Ingested {len(data)} log entries in {time.time() - start:.2f} seconds')
-
-
-def main():
-    """The primary application entrypoint
-
-    Parse commandline arguments and ingest data from the resulting file path
-    into the database.
-    """
-
-    arguments = docopt(__doc__)
-    path = Path(arguments['<path>'])
-
-    try:
-        db_engine = sa.engine.create_engine(url=fetch_db_url())
-        with db_engine.connect() as connection:
-            data = parse_log_data(path)
-            ingest_data_to_db(data, 'log_data', connection=connection)
-
-    except Exception as caught:
-        logging.error(str(caught))
-
-
-if __name__ == '__main__':
-    main()
