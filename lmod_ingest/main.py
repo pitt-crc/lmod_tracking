@@ -2,7 +2,7 @@
 
 Usage:
   lmod_ingest ingest <path>
-  lmod_ingest migrate [--views]
+  lmod_ingest migrate
 
 Options:
   <path>     Path of the log data to ingest
@@ -19,12 +19,14 @@ from dotenv import load_dotenv
 
 from .utils import fetch_db_url, ingest_data_to_db, parse_log_data
 
+# Load environmental variables
 load_dotenv()
 
+# Database metadata
 MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
 SCHEMA_VERSION = '0.1'
-SCHEMA_VERSION_VIEWS = '0.1.views'
 
+# Pretty print log messages to the console
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 
@@ -41,19 +43,13 @@ def ingest(path: Path) -> None:
         ingest_data_to_db(data, 'log_data', connection=connection)
 
 
-def migrate(views: bool = False) -> None:
-    """Migrate the application database to the given schema version
-
-    Args:
-        views: Whether to create views during the migration
-    """
+def migrate() -> None:
+    """Migrate the application database to the required schema version"""
 
     alembic_cfg = config.Config()
     alembic_cfg.set_main_option('script_location', str(MIGRATIONS_DIR))
     alembic_cfg.set_main_option('sqlalchemy.url', fetch_db_url())
-
-    version = SCHEMA_VERSION_VIEWS if views else SCHEMA_VERSION
-    command.upgrade(alembic_cfg, revision=version)
+    command.upgrade(alembic_cfg, revision=SCHEMA_VERSION)
 
 
 def main():
