@@ -2,11 +2,12 @@
 
 Usage:
   lmod_ingest ingest <path>
-  lmod_ingest migrate
+  lmod_ingest migrate [--sql]
 
 Options:
-  <path>     Path of the log data to ingest
   -h --help  Show this help text
+  <path>     Path of the log data to ingest
+  --sql      Print migration SQL but do not execute it
 """
 
 import logging
@@ -43,13 +44,17 @@ def ingest(path: Path) -> None:
         ingest_data_to_db(data, 'log_data', connection=connection)
 
 
-def migrate() -> None:
-    """Migrate the application database to the required schema version"""
+def migrate(sql: bool) -> None:
+    """Migrate the application database to the required schema version
+
+    Args:
+    """
 
     alembic_cfg = config.Config()
     alembic_cfg.set_main_option('script_location', str(MIGRATIONS_DIR))
     alembic_cfg.set_main_option('sqlalchemy.url', fetch_db_url())
-    command.upgrade(alembic_cfg, revision=SCHEMA_VERSION)
+
+    command.upgrade(alembic_cfg, revision=SCHEMA_VERSION, sql=sql)
 
 
 def main():
@@ -62,7 +67,7 @@ def main():
             ingest(arguments['<path>'])
 
         elif arguments['migrate']:
-            migrate()
+            migrate(arguments['--sql'])
 
     except Exception as caught:
         logging.error(str(caught))
