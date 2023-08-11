@@ -37,7 +37,7 @@ def upgrade() -> None:
                 log_data
             GROUP BY
                 package
-            ORDER BY package DESC;
+            ORDER BY package;
     """)
 
     op.execute("""
@@ -52,7 +52,7 @@ def upgrade() -> None:
             GROUP BY
                 package,
                 version
-            ORDER BY package, version DESC;
+            ORDER BY package, version;
     """)
 
 

@@ -11,6 +11,7 @@ Options:
 """
 
 import logging
+import sys
 from pathlib import Path
 
 import sqlalchemy as sa
@@ -28,7 +29,10 @@ MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
 SCHEMA_VERSION = '0.1'
 
 # Pretty print log messages to the console
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s: %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)])
 
 
 def ingest(path: Path) -> None:
@@ -64,7 +68,7 @@ def main():
 
     try:
         if arguments['ingest']:
-            ingest(arguments['<path>'])
+            ingest(Path(arguments['<path>']))
 
         elif arguments['migrate']:
             migrate(arguments['--sql'])
