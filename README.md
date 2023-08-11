@@ -2,7 +2,7 @@
 
 [![](https://app.codacy.com/project/badge/Grade/da5fd23a62874c989f9b80ba201af924)](https://app.codacy.com/gh/pitt-crc/lmod_tracking/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
-Lmod provides [official support](https://lmod.readthedocs.io/en/latest/300_tracking_load.html) for tracking
+Lmod provides [official support](https://lmod.readthedocs.io/en/latest/300_tracking_module_usage.html) for tracking
 module usage via the system log.
 This repository provides scripts and utilities for ingesting the resulting log data into a MySQL database.
 
@@ -33,8 +33,7 @@ For reference, here is a fully rendered example:
 Apr 27 03:22:57 node1 ModuleUsageTracking: user=usr123 module=gcc/5.4.0 path=/modules/gcc/5.4.0.lua host=node1.domain.com time=1682580177.622180
 ```
 
-At the time of writing, this is the same format suggested by
-the [official Lmod documentation](https://lmod.readthedocs.io/en/latest/300_tracking_load.html).
+At the time of writing, this is the same format suggested by the official Lmod documentation.
 If your format differs from the above, you must change it by editing the `SitePackage.lua` file.
 
 ### Database Connection Settings
