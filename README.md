@@ -1,9 +1,8 @@
-# LMOD Usage Tracking
+# Lmod Usage Tracking
 
 [![](https://app.codacy.com/project/badge/Grade/da5fd23a62874c989f9b80ba201af924)](https://app.codacy.com/gh/pitt-crc/lmod_tracking/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
-Lmod provides [official support](https://lmod.readthedocs.io/en/latest/300_tracking_module_usage.html) for tracking
-module usage via the system log.
+Lmod provides [official support](https://lmod.readthedocs.io/en/latest/300_tracking_module_usage.html) for tracking module usage via the system log.
 This repository provides scripts and utilities for ingesting the resulting log data into a MySQL database.
 
 ## Setup Instructions
@@ -15,9 +14,9 @@ These instructions assume the following conditions are already met:
 
 In the sections below you will:
 
-1. Ensure your log entries are properly formatted
-2. Configure your database connection settings
-3. Install and run the `lmod-ingest` commandline utility
+1. Ensure your log entries are properly formatted.
+2. Configure your database connection settings.
+3. Install and run the `lmod-ingest` command-line utility.
 
 ### Lmod Log Formatting
 
@@ -40,10 +39,10 @@ If your format differs from the above, you must change it by editing the `SitePa
 
 Database connection settings are configured as environmental variables.
 For convenience, these values can be defined in a `.env` file.
-A list of accepted variables and their defaults are provided in the table below.
+A list of accepted variables and their defaults is provided in the table below.
 
 | Variable  | Default     | Description                              |
-| --------- | ----------- | ---------------------------------------- |
+|-----------|-------------|------------------------------------------|
 | `DB_USER` |             | User name for logging into the database. |
 | `DB_PASS` |             | Password for logging into the database.  |
 | `DB_HOST` | `localhost` | Host running the MySQL database.         |
@@ -69,20 +68,19 @@ lmod-ingest --help
 
 Once installed, the necessary database schema can be applied using the `migrate` command.
 Before running the command, make sure you have already created a `.env` file as described in the previous step.
-The `--sql` option can be used to perform an initial dry run and priunt the migration SQL lgic without modifying the
-database.
+The `--sql` option can be used to perform an initial dry run and print the migration SQL logic without modifying the database.
 
 ```bash
-# Print the migratin SQL cmmands
+# Print the migration SQL commands
 lmod-ingest migrate --sql
 
 # Execute the migration
 lmod-ingest migrate
 ```
 
-Use the `ingest` command to load ny desired log files into the application database.
+Use the `ingest` command to load a log file into the application database.
 The ingestion script can safely be run multiple times on the same log file without ingesting duplicate data.
 
 ```bash
-lmod-ingest ingest lmog.log
+lmod-ingest ingest lmod.log
 ```
