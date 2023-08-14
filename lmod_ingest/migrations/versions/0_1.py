@@ -22,8 +22,8 @@ def upgrade() -> None:
         sa.Column('user', sa.String(50), nullable=False),
         sa.Column('module', sa.String(100), nullable=False),
         sa.Column('path', sa.String(4096), nullable=False),
-        sa.Column('version', sa.String(150), nullable=False),
         sa.Column('package', sa.String(100), nullable=False),
+        sa.Column('version', sa.String(150), nullable=True),
         sa.UniqueConstraint('time', 'host', 'user', 'module', name='unq_log_entry')
     )
 
