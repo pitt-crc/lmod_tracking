@@ -66,7 +66,7 @@ def parse_log_data(path: Path) -> pd.DataFrame:
     # Split the module name into package names and versions
     log_data[['package', 'version']] = log_data.module.str.split('/', n=1, expand=True)
 
-    log_data['logname'] = path.name
+    log_data['logname'] = str(path.resolve())
     return log_data.dropna(subset=['user'])
 
 
