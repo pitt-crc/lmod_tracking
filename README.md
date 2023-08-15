@@ -59,7 +59,9 @@ DB_NAME=lmod_tracking
 
 ## Application Setup and Execution
 
-The `lmod-ingest` utility is pip installable:
+The `lmod-ingest` utility is pip installable.
+If you have access to the CRC package repository, the package can be using the commands below.
+Alternatively, the package can be installed directly from the GitHub repository.
 
 ```bash
 pip install crc-lmod-ingest
