@@ -64,7 +64,7 @@ If you have access to the CRC package repository, the package can be using the c
 Alternatively, the package can be installed directly from the GitHub repository.
 
 ```bash
-pip install crc-lmod-ingest
+pipx install lmod-ingest
 lmod-ingest --help
 ```
 
