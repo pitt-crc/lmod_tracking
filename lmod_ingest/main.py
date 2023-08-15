@@ -68,7 +68,9 @@ def main():
 
     try:
         if arguments['ingest']:
-            ingest(Path(arguments['<path>']))
+            path = Path(arguments['<path>'])
+            logging.info(f'Ingesting from {path.resolve()}')
+            ingest(path)
 
         elif arguments['migrate']:
             migrate(arguments['--sql'])
