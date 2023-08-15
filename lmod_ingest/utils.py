@@ -14,7 +14,7 @@ def fetch_db_url() -> str:
     """Fetch DB connection settings from environment variables
 
     Returns:
-        A sqlalchemy compatible database URL
+        A SQLAlchemy compatible database URL
 
     Raises:
         RuntimeError: If the username or password is not defined in the environment
@@ -37,7 +37,7 @@ def fetch_db_url() -> str:
 def parse_log_data(path: Path) -> pd.DataFrame:
     """Parse, format, and return data from an Lmod log file
 
-    The returned dataframe is formatted using the same data model assumed
+    The returned DataFrame is formatted using the same data model assumed
     by the ingestion database.
 
     Args:
@@ -49,7 +49,7 @@ def parse_log_data(path: Path) -> pd.DataFrame:
 
     logging.info(f'Parsing log data')
 
-    # Expect columns to be seperated by whitespace and use ``=`` as a secondary
+    # Expect columns to be separated by whitespace and use ``=`` as a secondary
     # delimiter to automatically split up strings like "user=admin123" into two columns
     log_data = pd.read_table(
         path,
@@ -60,7 +60,7 @@ def parse_log_data(path: Path) -> pd.DataFrame:
         engine='python'
     )
 
-    # Convert UTC decimals to a MYSql compatible string format
+    # Convert UTC decimals to a MySQL compatible string format
     log_data['time'] = pd.to_datetime(log_data['time'], unit='s').dt.strftime('%Y-%m-%d %H:%M:%S.%f')
 
     # Split the module name into package names and versions

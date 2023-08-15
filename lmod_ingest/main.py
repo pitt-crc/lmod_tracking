@@ -6,10 +6,10 @@ Usage:
   lmod_ingest --version
 
 Options:
-  -h --help  Show this help text
-  <path>     Path of the log data to ingest
-  --sql      Print migration SQL but do not execute it
-  --version  Show the application version number
+  -h --help     Show this help text
+  <path>        Path of the log data to ingest
+  --sql         Print migration SQL but do not execute it
+  --version     Show the application version number
 """
 
 import logging
@@ -42,9 +42,10 @@ def ingest(path: Path) -> None:
     """Ingest data from a log file into the application database
 
     Args:
-        path: Path of the lg file
+        path: Path of the log file
     """
 
+    logging.info(f'Ingesting {path.resolve()}')
     db_engine = sa.engine.create_engine(url=fetch_db_url())
     with db_engine.connect() as connection:
         data = parse_log_data(path)
@@ -78,4 +79,4 @@ def main():
             migrate(arguments['--sql'])
 
     except Exception as caught:
-        logging.error(str(caught))
+        logging.error(caught)
