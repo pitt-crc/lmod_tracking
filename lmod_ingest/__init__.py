@@ -3,7 +3,7 @@
 import importlib.metadata
 
 try:
-    __version__ = importlib.metadata.version('quota-notifier')
+    __version__ = importlib.metadata.version('lmod-ingest')
 
 except importlib.metadata.PackageNotFoundError:
     __version__ = '0.0.0'
