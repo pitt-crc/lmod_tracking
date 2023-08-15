@@ -42,16 +42,18 @@ def ingest(path: Path) -> None:
         path: Path of the lg file
     """
 
+    logging.info(f'Ingesting from {path.resolve()}')
     db_engine = sa.engine.create_engine(url=fetch_db_url())
     with db_engine.connect() as connection:
         data = parse_log_data(path)
         ingest_data_to_db(data, 'log_data', connection=connection)
 
 
-def migrate(sql: bool) -> None:
+def migrate(sql: bool = False) -> None:
     """Migrate the application database to the required schema version
 
     Args:
+        sql: Print SQL migration commands without executing them
     """
 
     alembic_cfg = config.Config()
@@ -69,7 +71,6 @@ def main():
     try:
         if arguments['ingest']:
             path = Path(arguments['<path>'])
-            logging.info(f'Ingesting from {path.resolve()}')
             ingest(path)
 
         elif arguments['migrate']:
