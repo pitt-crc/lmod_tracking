@@ -3,11 +3,13 @@
 Usage:
   lmod_ingest ingest <path>
   lmod_ingest migrate [--sql]
+  lmod_ingest --version
 
 Options:
   -h --help  Show this help text
   <path>     Path of the log data to ingest
   --sql      Print migration SQL but do not execute it
+  --version  Show the application version number
 """
 
 import logging
@@ -19,6 +21,7 @@ from alembic import config, command
 from docopt import docopt
 from dotenv import load_dotenv
 
+from . import __version__
 from .utils import fetch_db_url, ingest_data_to_db, parse_log_data
 
 # Load environmental variables
@@ -42,7 +45,6 @@ def ingest(path: Path) -> None:
         path: Path of the lg file
     """
 
-    logging.info(f'Ingesting from {path.resolve()}')
     db_engine = sa.engine.create_engine(url=fetch_db_url())
     with db_engine.connect() as connection:
         data = parse_log_data(path)
@@ -66,12 +68,11 @@ def migrate(sql: bool = False) -> None:
 def main():
     """Parse command line arguments and execute the application"""
 
-    arguments = docopt(__doc__)
+    arguments = docopt(__doc__, version=__version__)
 
     try:
         if arguments['ingest']:
-            path = Path(arguments['<path>'])
-            ingest(path)
+            ingest(Path(arguments['<path>']))
 
         elif arguments['migrate']:
             migrate(arguments['--sql'])
