@@ -51,10 +51,11 @@ def ingest(path: Path) -> None:
         ingest_data_to_db(data, 'log_data', connection=connection)
 
 
-def migrate(sql: bool) -> None:
+def migrate(sql: bool = False) -> None:
     """Migrate the application database to the required schema version
 
     Args:
+        sql: Print SQL migration commands without executing them
     """
 
     alembic_cfg = config.Config()
