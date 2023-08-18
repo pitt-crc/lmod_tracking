@@ -34,7 +34,7 @@ SCHEMA_VERSION = '0.1'
 # Pretty print log messages to the console
 logging.basicConfig(
     level=logging.INFO,
-    format='%(levelname)s: %(message)s',
+    format='%(asctime)s - %(levelname)s: %(message)s',
     handlers=[logging.StreamHandler(sys.stdout)])
 
 
