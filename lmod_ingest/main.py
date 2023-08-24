@@ -12,14 +12,16 @@ Options:
   --version     Show the application version number
 """
 
+import asyncio
 import logging
 import sys
+import time
 from pathlib import Path
 
-import sqlalchemy as sa
 from alembic import config, command
 from docopt import docopt
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from . import __version__
 from .utils import fetch_db_url, ingest_data_to_db, parse_log_data
@@ -38,7 +40,7 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)])
 
 
-def ingest(path: Path) -> None:
+async def ingest(path: Path) -> None:
     """Ingest data from a log file into the application database
 
     Args:
@@ -46,10 +48,15 @@ def ingest(path: Path) -> None:
     """
 
     logging.info(f'Ingesting {path.resolve()}')
-    db_engine = sa.engine.create_engine(url=fetch_db_url())
-    with db_engine.connect() as connection:
+    db_engine = create_async_engine(url=fetch_db_url())
+    async with db_engine.connect() as connection:
+        logging.info(f'Parsing log data')
         data = parse_log_data(path)
-        ingest_data_to_db(data, 'log_data', connection=connection)
+
+        logging.info(f'Loading data into database')
+        start = time.time()
+        await ingest_data_to_db(data, 'log_data', connection=connection)
+        logging.info(f'Ingested {len(data)} log entries in {time.time() - start:.2f} seconds')
 
 
 def migrate(sql: bool = False) -> None:
@@ -73,10 +80,12 @@ def main():
 
     try:
         if arguments['ingest']:
-            ingest(Path(arguments['<path>']))
+            asyncio.get_event_loop().run_until_complete(
+                ingest(Path(arguments['<path>']))
+            )
 
         elif arguments['migrate']:
             migrate(arguments['--sql'])
 
     except Exception as caught:
-        logging.error(caught)
+        logging.error(str(caught).split('\n')[0])
