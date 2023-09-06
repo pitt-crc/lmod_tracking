@@ -27,7 +27,7 @@ from . import __version__
 from .utils import fetch_db_url, ingest_data_to_db, parse_log_data
 
 # Load environmental variables
-load_dotenv()
+load_dotenv(Path.home() / '.ingest.env')
 
 # Database metadata
 MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
