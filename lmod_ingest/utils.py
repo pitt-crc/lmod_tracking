@@ -4,7 +4,6 @@ import logging
 import os
 from pathlib import Path
 
-import math
 import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
