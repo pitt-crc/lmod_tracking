@@ -6,3 +6,6 @@ __pycache__/
 
 # Pycharm file
 .idea/
+
+# Poetry files
+poetry.lock
