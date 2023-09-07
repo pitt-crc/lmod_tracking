@@ -1,9 +1,13 @@
 """Environment configuration file and entrypoint for the ``alembic`` utility."""
 
-from alembic import context
-from sqlalchemy import pool, engine_from_config
+import asyncio
 
-# this is the Alembic Config object, which provides
+from alembic import context
+from sqlalchemy import pool
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import async_engine_from_config
+
+# This is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
@@ -32,23 +36,37 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+def do_run_migrations(connection: Connection) -> None:
+    """Synchronous helper function for executing database migrations
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
+    Args:
+        connection: An open database connection
     """
 
-    connectable = engine_from_config(
+    context.configure(connection=connection, target_metadata=None)
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+async def run_async_migrations() -> None:
+    """Connect to the database and execute the schema migration"""
+
+    connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
-    with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=None)
-        with context.begin_transaction():
-            context.run_migrations()
+    async with connectable.connect() as connection:
+        await connection.run_sync(do_run_migrations)
+
+    await connectable.dispose()
+
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode."""
+
+    asyncio.run(run_async_migrations())
 
 
 if context.is_offline_mode():

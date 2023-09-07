@@ -2,7 +2,7 @@
 
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.dialects.mysql import DATETIME
+from sqlalchemy.dialects.mysql import TIMESTAMP
 
 # Revision identifiers used by Alembic
 revision = '0.1'
@@ -17,7 +17,7 @@ def upgrade() -> None:
         'log_data',
         sa.Column('id', sa.Integer(), primary_key=True, autoincrement=True),
         sa.Column('logname', sa.String(4096), nullable=False),
-        sa.Column('time', DATETIME(fsp=6), nullable=False),
+        sa.Column('time', TIMESTAMP(fsp=6), nullable=False),
         sa.Column('host', sa.String(255), nullable=False),
         sa.Column('user', sa.String(50), nullable=False),
         sa.Column('module', sa.String(100), nullable=False),
@@ -32,7 +32,7 @@ def upgrade() -> None:
             SELECT
                 package,
                 COUNT(*) AS total,
-                time AS lastload
+                max(time) AS lastload
             FROM
                 log_data
             GROUP BY
@@ -46,7 +46,7 @@ def upgrade() -> None:
                 package,
                 version,
                 COUNT(*) AS total,
-                time AS lastload
+                max(time) AS lastload
             FROM
                 log_data
             GROUP BY
