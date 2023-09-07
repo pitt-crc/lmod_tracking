@@ -3,14 +3,14 @@
 [![](https://app.codacy.com/project/badge/Grade/da5fd23a62874c989f9b80ba201af924)](https://app.codacy.com/gh/pitt-crc/lmod_tracking/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 Lmod provides [official support](https://lmod.readthedocs.io/en/latest/300_tracking_module_usage.html) for tracking module usage via the system log.
-This repository provides scripts and utilities for ingesting the resulting log data into a MySQL database.
+This repository provides scripts and utilities for ingesting the resulting log data into a Postgres database.
 
 ## Setup Instructions
 
 These instructions assume the following conditions are already met:
 
 - Lmod logging is configured and running on your cluster.
-- A MySQL server is installed and configured with valid user credentials.
+- A Postgres server is installed and configured with valid user credentials.
 
 In the sections below you will:
 
@@ -38,18 +38,18 @@ If your format differs from the above, you must change it by editing the `SitePa
 ### Database Connection Settings
 
 Database connection settings are configured as environmental variables.
-For convenience, these values can be defined in a `.env` file.
+For convenience, these values can be defined in a `.ingest.env` file under the user's home directory.
 A list of accepted variables and their defaults is provided in the table below.
 
-| Variable  | Default     | Description                              |
-|-----------|-------------|------------------------------------------|
-| `DB_USER` |             | User name for logging into the database. |
-| `DB_PASS` |             | Password for logging into the database.  |
-| `DB_HOST` | `localhost` | Host running the MySQL database.         |
-| `DB_PORT` | `3306`      | Port for accessing the MySQL database.   |
-| `DB_NAME` |             | Name of the database to write to.        |
+| Variable  | Default     | Description                               |
+|-----------|-------------|-------------------------------------------|
+| `DB_USER` |             | User name for logging into the database.  |
+| `DB_PASS` |             | Password for logging into the database.   |
+| `DB_HOST` | `localhost` | Host running the Postgres database.       |
+| `DB_PORT` | `3306`      | Port for accessing the Postgres database. |
+| `DB_NAME` |             | Name of the database to write to.         |
 
-The following example demonstrates a minimally valid `.env` file:
+The following example demonstrates a minimally valid `.ingest.env` file:
 
 ```bash
 DB_USER=lmod_ingest
@@ -69,7 +69,7 @@ lmod-ingest --help
 ```
 
 Once installed, the necessary database schema can be applied using the `migrate` command.
-Before running the command, make sure you have already created a `.env` file as described in the previous step.
+Before running the command, make sure you have already created a `.ingest.env` file as described in the previous step.
 The `--sql` option can be used to perform an initial dry run and print the migration SQL logic without modifying the database.
 
 ```bash
