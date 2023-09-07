@@ -13,6 +13,7 @@ Options:
 """
 
 import asyncio
+import importlib.metadata
 import logging
 import sys
 import time
@@ -23,21 +24,27 @@ from docopt import docopt
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from . import __version__
 from .utils import fetch_db_url, ingest_data_to_db, parse_log_data
 
 # Load environmental variables
 load_dotenv(Path.home() / '.ingest.env')
-
-# Database metadata
-MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
-SCHEMA_VERSION = '0.1'
 
 # Pretty print log messages to the console
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s: %(message)s',
     handlers=[logging.StreamHandler(sys.stdout)])
+
+# Database metadata
+MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
+SCHEMA_VERSION = '0.1'
+
+# Determine the application version number. Assign 0.0.0 when running in development.
+try:
+    __version__ = importlib.metadata.version('lmod-ingest')
+
+except importlib.metadata.PackageNotFoundError:
+    __version__ = '0.0.0'
 
 
 async def ingest(path: Path) -> None:
