@@ -30,7 +30,7 @@ def fetch_db_url() -> str:
     if not (db_user and db_password and db_name):
         raise ValueError('DB_NAME, DB_USER, and DB_PASS must be configured as environmental variables')
 
-    return f'postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+    return f'postgresql+asyncpg://{db_user}:{db_password}@/{db_name}?host={db_host}&port={db_port}'
 
 
 def parse_log_data(path: Path) -> pd.DataFrame:
