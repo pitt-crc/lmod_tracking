@@ -1,0 +1,5 @@
+Apr 1 03:20:34 gpu-n53 ModuleUsageTracking: user=user1 module=gcc/8.2.0 path=/ihome/crc/modules/Core/gcc/8.2.0.lua host=gpu-n53.crc.pitt.edu time=1682407234.086799
+May 12 03:20:34 gpu-n53 ModuleUsageTracking: user=user1 module=openmpi/4.0.3 path=/ihome/crc/modules/Compiler/gcc/8.2.0/openmpi/4.0.3.lua host=gpu-n53.crc.pitt.edu time=1682407234.103664
+Jun 24 03:20:34 gpu-n53 ModuleUsageTracking: user=user1 module=cuda/11.6.1 path=/ihome/crc/modules/Core/cuda/11.6.1.lua host=gpu-n53.crc.pitt.edu time=1682407234.350642
+Jul 29 03:20:34 gpu-n53 ModuleUsageTracking: user=user1 module=gcc/8.2.0 path=/ihome/crc/modules/Core/gcc/8.2.0.lua host=gpu-n53.crc.pitt.edu time=1682407234.382790
+Aug 13 03:20:34 gpu-n53 ModuleUsageTracking: user=user1 module=openmpi/4.0.3 path=/ihome/crc/modules/Compiler/gcc/8.2.0/openmpi/4.0.3.lua host=gpu-n53.crc.pitt.edu time=1682407234.394976
