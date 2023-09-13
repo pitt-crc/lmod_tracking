@@ -63,14 +63,14 @@ class ParseLogData(TestCase):
             module=['gcc/8.2.0', 'openmpi'],
             path=['/software/gcc/8.2.0.lua', '/software/gcc/openmpi/4.0.3.lua'],
             host=['gpu-n53.crc.pitt.edu', 'smp-n10.crc.pitt.edu'],
-            time=['1682407234.086799', '1682407234.103664'],
+            time=[1682407234.086799, 1682407234.103664],
         ))
 
         # Write test data in the log format expected by the application
+        log_record_format = "{date} {node} ModuleUsageTracking: user={user} module={module} path={path} host={host} time={time}\n"
         with cls.test_path.open('w') as file:
             for _, row in cls.test_data.iterrows():
-                file.write(
-                    f"{row['date']} {row['node']} ModuleUsageTracking: user={row['user']} module={row['module']} path={row['path']} host={row['host']} time={row['time']}\n")
+                file.write(log_record_format.format(**row))
 
     @classmethod
     def tearDownClass(cls) -> None:
