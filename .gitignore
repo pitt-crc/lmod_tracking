@@ -9,3 +9,6 @@ __pycache__/
 
 # Poetry files
 poetry.lock
+
+# Coverage results
+.coverage
