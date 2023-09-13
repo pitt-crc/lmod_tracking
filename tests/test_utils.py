@@ -9,6 +9,7 @@ from unittest.mock import patch
 import pandas as pd
 import sqlalchemy as sa
 
+from lmod_ingest.migrations.env import do_run_migrations
 from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
 
 
@@ -107,16 +108,7 @@ class TestIngestDataToDB(TestCase):
         self.engine = sa.create_engine('sqlite://', echo=True)
         self.metadata = sa.MetaData()
 
-        # Define a test table and create it in the database
-        self.table_name = 'test_table'
-        self.table = sa.Table(
-            self.table_name,
-            self.metadata,
-            sa.Column('id', sa.Integer, primary_key=True),
-            sa.Column('name', sa.String),
-        )
-
-        self.metadata.create_all(bind=self.engine)
+        do_run_migrations(self.db_connection)
 
     def tearDown(self):
         """Close any open database connections"""
@@ -143,17 +135,14 @@ class TestIngestDataToDB(TestCase):
                 self.assertEqual(row['id'], data['id'][i])
                 self.assertEqual(row['name'], data['name'][i])
 
-    def test_ingest_data_to_db_empty_data(self):
-        # Define an empty DataFrame
-        data = pd.DataFrame()
+    def test_ingest_data_to_db_empty_data(self) -> None:
+        """Test ingesting an empty dataframe"""
 
-        # Call the function to ingest empty data
+        data = pd.DataFrame()
         ingest_data_to_db(data, self.table_name, self.db_connection)
 
         # Retrieve data from the database
         with self.engine.connect() as conn:
             result = conn.execute(sa.select([self.table]))
-
-            # Verify that the table is empty
             rows = result.fetchall()
             self.assertEqual(len(rows), 0)
