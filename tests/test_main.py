@@ -7,12 +7,12 @@ from unittest.mock import MagicMock
 from lmod_ingest.main import main  # Replace 'lmod_ingest.main' with the actual module name
 
 
-class TestMain(unittest.TestCase):
-    """Test argument parsing by the main module"""
+class Main(unittest.TestCase):
+    """Test argument parsing by the `main.main` function"""
 
     @unittest.mock.patch('lmod_ingest.main.ingest')
     def test_ingest(self, mock_ingest) -> None:
-        """Test the ``ingest`` subparser calls the ``main.ingest`` method"""
+        """Test the ``ingest`` subparser calls the ``ingest`` method"""
 
         input_path = Path('/some/path')
         arguments = {'ingest': True, '<path>': input_path}

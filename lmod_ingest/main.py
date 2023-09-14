@@ -87,5 +87,5 @@ def main():
         elif arguments.get('migrate', False):
             migrate(sql=arguments['--sql'])
 
-    except Exception as caught:
+    except Exception as caught:  # pragma: nocover
         logging.error(str(caught).split('\n')[0])
