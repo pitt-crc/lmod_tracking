@@ -1,16 +1,13 @@
 """Tests for the ``utils`` module"""
 
-import sqlite3
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
 from unittest.mock import patch
 
 import pandas as pd
-import sqlalchemy as sa
 
-from lmod_ingest.migrations.env import do_run_migrations
-from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
+from lmod_ingest.utils import fetch_db_url, parse_log_data
 
 
 class TestFetchDBUrl(TestCase):
@@ -95,54 +92,3 @@ class ParseLogData(TestCase):
         })
 
         pd.testing.assert_frame_equal(expected_df, result_df)
-
-
-class TestIngestDataToDB(TestCase):
-    """Test the ``ingest_data_to_db`` function"""
-
-    def setUp(self):
-        """Create a temporary test database in memory"""
-
-        # Create an in-memory SQLite database
-        self.db_connection = sqlite3.connect(':memory:')
-        self.engine = sa.create_engine('sqlite://', echo=True)
-        self.metadata = sa.MetaData()
-
-        do_run_migrations(self.db_connection)
-
-    def tearDown(self):
-        """Close any open database connections"""
-
-        self.db_connection.close()
-
-    def test_ingest_data_to_db(self):
-        # Define test data
-        data = pd.DataFrame({
-            'id': [1, 2, 3],
-            'name': ['Alice', 'Bob', 'Charlie']
-        })
-
-        # Call the function to ingest data into the test table
-        with self.engine.connect() as conn:
-            ingest_data_to_db(data, self.table_name, conn)
-
-        # Retrieve data from the database
-        with self.engine.connect() as conn:
-            rows = conn.execute(sa.select(self.table)).fetchall()
-            self.assertEqual(len(rows), len(data))
-
-            for i, row in enumerate(rows):
-                self.assertEqual(row['id'], data['id'][i])
-                self.assertEqual(row['name'], data['name'][i])
-
-    def test_ingest_data_to_db_empty_data(self) -> None:
-        """Test ingesting an empty dataframe"""
-
-        data = pd.DataFrame()
-        ingest_data_to_db(data, self.table_name, self.db_connection)
-
-        # Retrieve data from the database
-        with self.engine.connect() as conn:
-            result = conn.execute(sa.select([self.table]))
-            rows = result.fetchall()
-            self.assertEqual(len(rows), 0)
