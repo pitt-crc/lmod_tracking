@@ -13,7 +13,6 @@ Options:
 """
 
 import asyncio
-import importlib.metadata
 import logging
 import sys
 import time
@@ -24,6 +23,7 @@ from docopt import docopt
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine
 
+from . import __version__
 from .utils import fetch_db_url, ingest_data_to_db, parse_log_data
 
 # Load environmental variables
@@ -38,13 +38,6 @@ logging.basicConfig(
 # Database metadata
 MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
 SCHEMA_VERSION = '0.1'
-
-# Determine the application version number. Assign 0.0.0 when running in development.
-try:
-    __version__ = importlib.metadata.version('lmod-ingest')
-
-except importlib.metadata.PackageNotFoundError:
-    __version__ = '0.0.0'
 
 
 async def ingest(path: Path) -> None:
@@ -86,13 +79,13 @@ def main():
     arguments = docopt(__doc__, version=__version__)
 
     try:
-        if arguments['ingest']:
+        if arguments.get('ingest', False):
             asyncio.get_event_loop().run_until_complete(
-                ingest(Path(arguments['<path>']))
+                ingest(path=Path(arguments['<path>']))
             )
 
-        elif arguments['migrate']:
-            migrate(arguments['--sql'])
+        elif arguments.get('migrate', False):
+            migrate(sql=arguments['--sql'])
 
     except Exception as caught:
         logging.error(str(caught).split('\n')[0])
