@@ -105,7 +105,7 @@ class TestIngestDataToDB(unittest.IsolatedAsyncioTestCase):
         """Create a temporary table to run tests against"""
 
         metadata = sa.MetaData()
-        self.engine = create_async_engine(url='postgresql+asyncpg://testing@localhost:5432/test_db')
+        self.engine = create_async_engine(url='postgresql+asyncpg://testing:posgres@localhost:5432/test_db')
         self.table = sa.Table('test_table', metadata, sa.Column('column1', sa.Integer), sa.Column('column2', sa.Integer))
 
         # Create a table for testing
