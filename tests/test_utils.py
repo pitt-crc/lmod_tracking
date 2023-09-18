@@ -1,13 +1,17 @@
 """Tests for the ``utils`` module"""
 
+import asyncio
+import unittest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 from unittest import TestCase
 from unittest.mock import patch
 
 import pandas as pd
+import sqlalchemy as sa
+from sqlalchemy.ext.asyncio import create_async_engine
 
-from lmod_ingest.utils import fetch_db_url, parse_log_data
+from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
 
 
 class TestFetchDBUrl(TestCase):
@@ -92,3 +96,55 @@ class ParseLogData(TestCase):
         })
 
         pd.testing.assert_frame_equal(expected_df, result_df)
+
+
+class TestIngestDataToDB(unittest.IsolatedAsyncioTestCase):
+    """Tests for the ``ingest_data_to_db`` method"""
+
+    async def asyncSetUp(self) -> None:
+        """Create a temporary table to run tests against"""
+
+        metadata = sa.MetaData()
+        self.engine = create_async_engine(url='postgresql+asyncpg://localhost:5432/test_db')
+        self.table = sa.Table('test_table', metadata, sa.Column('column1', sa.Integer), sa.Column('column2', sa.Integer))
+
+        # Create a table for testing
+        create_expression = sa.schema.CreateTable(self.table)
+        async with self.engine.connect() as connection:
+            await connection.execute(create_expression)
+
+    async def asyncTearDown(self) -> None:
+        """Teardown database constructs"""
+
+        delete_expression = sa.schema.DropTable(self.table)
+        async with self.engine.connect() as connection:
+            await connection.execute(delete_expression)
+
+    async def test_data_ingested(self) -> None:
+        """Test data is ingested into the database table"""
+
+        data = pd.DataFrame({'column1': [1, 2, 3], 'column2': [1, 2, 3]})
+        with self.engine.connect() as connection:
+            asyncio.run(ingest_data_to_db(data, self.table.name, connection))
+
+        with self.engine.connect() as connection:
+            recovered = pd.read_sql(sa.select(self.table), connection)
+
+        pd.testing.assert_frame_equal(data, recovered)
+
+    async def test_empty_data(self) -> None:
+        """Test empy data frames are handled without error"""
+
+        with self.engine.connect() as connection:
+            asyncio.run(ingest_data_to_db(pd.DataFrame(), self.table.name, connection))
+
+        with self.engine.connect() as connection:
+            recovered = pd.read_sql(sa.select(self.table), connection)
+
+        self.assertTrue(recovered.empty)
+
+    async def test_missing_table(self) -> None:
+        """Test an error is raised for database tables that do not exist"""
+
+        with self.assertRaises(ValueError), self.engine.connect() as connection:
+            asyncio.run(ingest_data_to_db(pd.DataFrame(), 'fake_table', connection))

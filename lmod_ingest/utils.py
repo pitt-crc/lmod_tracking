@@ -79,10 +79,12 @@ async def ingest_data_to_db(data: pd.DataFrame, name: str, connection) -> None:
         connection: An open database connection
     """
 
+    # Create a sqlalchemy representation of the table
     metadata = sa.MetaData()
     await connection.run_sync(metadata.reflect, only=[name])
     table = sa.Table(name, metadata, autoload_with=connection)
 
+    # Ingest data as chunks to avoid Postgres limits on the number of variables
     chunk_size = 32000 // len(data.columns)
     for i in range(0, len(data), chunk_size):
         chunk = data.iloc[i:i + chunk_size]
