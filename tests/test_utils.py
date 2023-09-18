@@ -1,6 +1,7 @@
 """Tests for the ``utils`` module"""
 
 import asyncio
+import os
 import unittest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -12,6 +13,9 @@ import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
+
+TEST_DB_USER = os.environ['TEST_DB_USER']
+TEST_DB_PASSWORD = os.environ['TEST_DB_PASSWORD']
 
 
 class TestFetchDBUrl(TestCase):
@@ -27,7 +31,7 @@ class TestFetchDBUrl(TestCase):
     def test_fetch_db_url_valid(self, mock_getenv) -> None:
         """Test the returned URI is valid and matches environmental variables"""
 
-        expected_url = 'postgresql+asyncpg://testuser:testpass@/testdb?host=testhost&port=5433'
+        expected_url = f'postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@/testdb?host=localhost&port=5433'
         self.assertEqual(expected_url, fetch_db_url())
 
     @patch('os.getenv', side_effect=lambda x, default=None: {
