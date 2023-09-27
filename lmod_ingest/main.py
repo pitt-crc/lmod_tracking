@@ -1,50 +1,31 @@
 """Data ingestion utility for loading Lmod tracking logs into a MySQL database."""
 
 import asyncio
-import logging
-import sys
-import time
 from argparse import ArgumentParser
 from pathlib import Path
 
 from alembic import config, command
 from dotenv import load_dotenv
-from sqlalchemy.ext.asyncio import create_async_engine
 
-from . import __version__
-from .utils import fetch_db_url, ingest_data_to_db, parse_log_data
-
-# Pretty print log messages to the console
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s: %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)])
+from . import utils, __version__
 
 # Database metadata
-MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
 SCHEMA_VERSION = '0.1'
+MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
 
 
-async def ingest(path: Path) -> None:
+def ingest(path: Path) -> None:
     """Ingest data from a log file into the application database
 
     Args:
         path: Path of the log file
     """
 
-    logging.info(f'Ingesting {path.resolve()}')
-    db_engine = create_async_engine(url=fetch_db_url())
-    async with db_engine.connect() as connection:
-        logging.info(f'Parsing log data')
-        data = parse_log_data(path)
-
-        logging.info(f'Loading data into database')
-        start = time.time()
-        await ingest_data_to_db(data, 'log_data', connection=connection)
-        logging.info(f'Ingested {len(data)} log entries in {time.time() - start:.2f} seconds')
+    db_url = utils.fetch_db_url()
+    asyncio.run(utils.ingest_file(path, db_url))
 
 
-async def migrate(sql: bool = False) -> None:
+def migrate(sql: bool = False) -> None:
     """Migrate the application database to the required schema version
 
     Args:
@@ -53,7 +34,7 @@ async def migrate(sql: bool = False) -> None:
 
     alembic_cfg = config.Config()
     alembic_cfg.set_main_option('script_location', str(MIGRATIONS_DIR))
-    alembic_cfg.set_main_option('sqlalchemy.url', fetch_db_url())
+    alembic_cfg.set_main_option('sqlalchemy.url', utils.fetch_db_url())
 
     command.upgrade(alembic_cfg, revision=SCHEMA_VERSION, sql=sql)
 
@@ -88,6 +69,4 @@ def main():  # pragma: nocover
     # Parse arguments and pass them to the appropriate function
     parser = create_parser()
     args = vars(parser.parse_args())
-    asyncio.get_event_loop().run_until_complete(
-        args.pop('callable')(**args)
-    )
+    args.pop('callable')(**args)

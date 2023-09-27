@@ -2,11 +2,13 @@
 
 import logging
 import os
+import time
 from pathlib import Path
 
 import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.ext.asyncio import create_async_engine
 
 
 def fetch_db_url() -> str:
@@ -99,3 +101,17 @@ async def ingest_data_to_db(data: pd.DataFrame, name: str, connection) -> None:
         on_duplicate_key_stmt = insert_stmt.on_conflict_do_nothing()
         await connection.execute(on_duplicate_key_stmt)
         await connection.commit()
+
+
+async def ingest_file(path: Path, url: str) -> None:
+
+    logging.info(f'Ingesting {path.resolve()}')
+    db_engine = create_async_engine(url=fetch_db_url())
+    async with db_engine.connect() as connection:
+        logging.info(f'Parsing log data')
+        data = parse_log_data(path)
+
+        logging.info(f'Loading data into database')
+        start = time.time()
+        await ingest_data_to_db(data, 'log_data', connection=connection)
+        logging.info(f'Ingested {len(data)} log entries in {time.time() - start:.2f} seconds')
