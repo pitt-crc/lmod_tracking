@@ -11,21 +11,17 @@ from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.asyncio import create_async_engine
 
 import mock
+from lmod_ingest.utils import DEFAULT_HOST, DEFAULT_PORT
 from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
 
 
 class TestFetchDBUrl(TestCase):
     """Tests for the ``fetch_db_url`` function"""
 
-    @classmethod
-    def setUpClass(cls) -> None:
-        """Cache a copy of environmental variables"""
-
-        cls.old_env = os.environ.copy()
-
     def setUp(self) -> None:
         """Clear the working environment"""
 
+        self.old_env = os.environ.copy()
         os.environ.clear()
 
     def tearDown(self) -> None:
@@ -37,29 +33,38 @@ class TestFetchDBUrl(TestCase):
     def test_fetch_db_url_valid(self) -> None:
         """Test the returned URI is valid and matches environmental variables"""
 
-        os.environ.update({
-            'DB_USER': 'testuser',
-            'DB_PASS': 'testpass',
-            'DB_HOST': 'testhost',
-            'DB_PORT': '1234',
-            'DB_NAME': 'testdb'
-        })
+        db_user = 'testuser'
+        db_pass = 'testpass'
+        db_host = 'testhost'
+        db_port = '1234'
+        db_name = 'testdb'
 
-        expected_url = f'postgresql+asyncpg://testuser:testpass@/testdb?host=testhost&port=1234'
+        os.environ.update(
+            DB_USER=db_user,
+            DB_PASS=db_pass,
+            DB_HOST=db_host,
+            DB_PORT=db_port,
+            DB_NAME=db_name
+        )
+
+        expected_url = f'postgresql+asyncpg://{db_user}:{db_pass}@/{db_name}?host={db_host}&port={db_port}'
         self.assertEqual(expected_url, fetch_db_url())
 
     def test_fetch_db_url_defaults(self) -> None:
         """Test ``DB_HOST`` and ``DB_PORT`` revert to defaults when not specified"""
 
-        os.environ.update({
-            'DB_USER': 'testuser',
-            'DB_PASS': 'testpass',
-            'DB_NAME': 'testdb'
-        })
+        db_user = 'testuser'
+        db_pass = 'testpass'
+        db_name = 'testdb'
 
-        db_url = fetch_db_url()
-        expected_url = 'postgresql+asyncpg://testuser:testpass@/testdb?host=localhost&port=5432'
-        self.assertEqual(expected_url, db_url)
+        os.environ.update(
+            DB_USER=db_user,
+            DB_PASS=db_pass,
+            DB_NAME=db_name
+        )
+
+        expected_url = f'postgresql+asyncpg://{db_user}:{db_pass}@/{db_name}?host={DEFAULT_HOST}&port={DEFAULT_PORT}'
+        self.assertEqual(expected_url, fetch_db_url())
 
     def test_fetch_db_url_missing_values(self):
         """Test an error is raised when environmental variables are not specified"""

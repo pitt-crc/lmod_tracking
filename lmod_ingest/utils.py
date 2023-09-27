@@ -10,6 +10,10 @@ import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import create_async_engine
 
+# Default database connection values
+DEFAULT_HOST = 'localhost'
+DEFAULT_PORT = 5432
+
 
 def fetch_db_url() -> str:
     """Fetch DB connection settings from environment variables
@@ -25,13 +29,14 @@ def fetch_db_url() -> str:
 
     db_user = os.getenv('DB_USER')
     db_password = os.getenv('DB_PASS')
-    db_host = os.getenv('DB_HOST', default='localhost')
-    db_port = os.getenv('DB_PORT', default=5432)
+    db_host = os.getenv('DB_HOST', default=DEFAULT_HOST)
+    db_port = os.getenv('DB_PORT', default=DEFAULT_PORT)
     db_name = os.getenv('DB_NAME')
 
     if not (db_user and db_password and db_name):
         raise ValueError('DB_NAME, DB_USER, and DB_PASS must be configured as environmental variables')
 
+    # This URI format supports sock file paths in addition to traditional server host names
     return f'postgresql+asyncpg://{db_user}:{db_password}@/{db_name}?host={db_host}&port={db_port}'
 
 
