@@ -8,6 +8,7 @@ from unittest import TestCase, IsolatedAsyncioTestCase
 
 import pandas as pd
 import sqlalchemy as sa
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
@@ -73,6 +74,16 @@ class TestFetchDBUrl(TestCase):
 class ParseLogData(TestCase):
     """Tests for the ``parse_log_data`` function"""
 
+    test_data = pd.DataFrame(dict(
+        date=['Apr 1 03:20:34', 'May 12 03:20:34'],
+        node=['gpu-n53', 'smp-n10'],
+        user=['user1', 'user2'],
+        module=['gcc/8.2.0', 'openmpi'],
+        path=['/software/gcc/8.2.0.lua', '/software/gcc/openmpi/4.0.3.lua'],
+        host=['gpu-n53.crc.pitt.edu', 'smp-n10.crc.pitt.edu'],
+        time=[1682407234.086799, 1682407234.103664],
+    ))
+
     @classmethod
     def setUpClass(cls) -> None:
         """Create a temporary log file with test data"""
@@ -80,17 +91,6 @@ class ParseLogData(TestCase):
         # Create a temporary file
         cls.temp_file = NamedTemporaryFile()
         cls.test_path = Path(cls.temp_file.name)
-
-        # Define test data to write/read from disk
-        cls.test_data = pd.DataFrame(dict(
-            date=['Apr 1 03:20:34', 'May 12 03:20:34'],
-            node=['gpu-n53', 'smp-n10'],
-            user=['user1', 'user2'],
-            module=['gcc/8.2.0', 'openmpi'],
-            path=['/software/gcc/8.2.0.lua', '/software/gcc/openmpi/4.0.3.lua'],
-            host=['gpu-n53.crc.pitt.edu', 'smp-n10.crc.pitt.edu'],
-            time=[1682407234.086799, 1682407234.103664],
-        ))
 
         # Write test data in the log format expected by the application
         log_record_format = "{date} {node} ModuleUsageTracking: user={user} module={module} path={path} host={host} time={time}\n"
@@ -115,7 +115,7 @@ class ParseLogData(TestCase):
             'host': self.test_data.host,
             'time': pd.to_datetime(self.test_data.time, unit='s'),
             'package': ['gcc', 'openmpi'],
-            'version': ['8.2.0', None],  # No version information in the sample data
+            'version': ['8.2.0', None],
             'logname': [str(self.test_path), str(self.test_path)]
         })
 
@@ -129,14 +129,17 @@ class TestIngestDataToDB(IsolatedAsyncioTestCase):
         """Create a temporary table to run tests against"""
 
         metadata = sa.MetaData()
-        self.engine = create_async_engine(url='postgresql+asyncpg://testing:posgres@localhost:5432/test_db')
-        self.table = sa.Table('test_table', metadata, sa.Column('column1', sa.Integer),
-                              sa.Column('column2', sa.Integer))
+        self.engine = create_async_engine(f'postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@localhost:5432/test_db')
+        self.table = sa.Table(
+            'test_table', metadata,
+            sa.Column('column1', sa.Integer),
+            sa.Column('column2', sa.Integer))
 
         # Create a table for testing
         create_expression = sa.schema.CreateTable(self.table)
         async with self.engine.connect() as connection:
             await connection.execute(create_expression)
+            await connection.commit()
 
     async def asyncTearDown(self) -> None:
         """Teardown database constructs"""
@@ -144,15 +147,16 @@ class TestIngestDataToDB(IsolatedAsyncioTestCase):
         delete_expression = sa.schema.DropTable(self.table)
         async with self.engine.connect() as connection:
             await connection.execute(delete_expression)
+            await connection.commit()
 
     async def test_data_ingested(self) -> None:
         """Test data is ingested into the database table"""
 
         data = pd.DataFrame({'column1': [1, 2, 3], 'column2': [1, 2, 3]})
-        with self.engine.connect() as connection:
-            asyncio.run(ingest_data_to_db(data, self.table.name, connection))
+        async with self.engine.connect() as connection:
+            await ingest_data_to_db(data, self.table.name, connection)
 
-        with self.engine.connect() as connection:
+        async with self.engine.connect() as connection:
             recovered = pd.read_sql(sa.select(self.table), connection)
 
         pd.testing.assert_frame_equal(data, recovered)
@@ -160,10 +164,10 @@ class TestIngestDataToDB(IsolatedAsyncioTestCase):
     async def test_empty_data(self) -> None:
         """Test empy data frames are handled without error"""
 
-        with self.engine.connect() as connection:
-            asyncio.run(ingest_data_to_db(pd.DataFrame(), self.table.name, connection))
+        async with self.engine.connect() as connection:
+            await ingest_data_to_db(pd.DataFrame(), self.table.name, connection)
 
-        with self.engine.connect() as connection:
+        async with self.engine.connect() as connection:
             recovered = pd.read_sql(sa.select(self.table), connection)
 
         self.assertTrue(recovered.empty)
@@ -171,5 +175,6 @@ class TestIngestDataToDB(IsolatedAsyncioTestCase):
     async def test_missing_table(self) -> None:
         """Test an error is raised for database tables that do not exist"""
 
-        with self.assertRaises(ValueError), self.engine.connect() as connection:
-            asyncio.run(ingest_data_to_db(pd.DataFrame(), 'fake_table', connection))
+        async with self.engine.connect() as connection:
+            with self.assertRaises(InvalidRequestError):
+                await ingest_data_to_db(pd.DataFrame(), 'fake_table', connection)

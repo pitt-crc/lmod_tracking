@@ -79,6 +79,11 @@ async def ingest_data_to_db(data: pd.DataFrame, name: str, connection) -> None:
         connection: An open database connection
     """
 
+    # There is nothing to do when the data is empty
+    # Avoid errors and gain efficiency by exiting early
+    if data.empty:
+        return
+
     # Create a sqlalchemy representation of the table
     metadata = sa.MetaData()
     await connection.run_sync(metadata.reflect, only=[name])
