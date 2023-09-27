@@ -2,11 +2,9 @@
 
 import asyncio
 import os
-import unittest
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from unittest import TestCase
-from unittest.mock import patch
+from unittest import TestCase, IsolatedAsyncioTestCase
 
 import pandas as pd
 import sqlalchemy as sa
@@ -14,39 +12,58 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
 
-TEST_DB_USER = os.environ['TEST_DB_USER']
-TEST_DB_PASSWORD = os.environ['TEST_DB_PASSWORD']
+TEST_DB_USER = os.environ.get('TEST_DB_USER', 'testing')
+TEST_DB_PASSWORD = os.environ.get('TEST_DB_PASSWORD', 'postgres')
 
 
 class TestFetchDBUrl(TestCase):
     """Tests for the ``fetch_db_url`` function"""
 
-    @patch('os.getenv', side_effect=lambda x, default=None: {
-        'DB_USER': 'testuser',
-        'DB_PASS': 'testpass',
-        'DB_HOST': 'testhost',
-        'DB_PORT': '5433',
-        'DB_NAME': 'testdb'
-    }.get(x, default))
-    def test_fetch_db_url_valid(self, mock_getenv) -> None:
+    @classmethod
+    def setUpClass(cls) -> None:
+        """Cache a copy of environmental variables"""
+
+        cls.old_env = os.environ.copy()
+
+    def setUp(self) -> None:
+        """Clear the working environment"""
+
+        os.environ.clear()
+
+    def tearDown(self) -> None:
+        """Restore the working environment"""
+
+        os.environ.clear()
+        os.environ.update(self.old_env)
+
+    def test_fetch_db_url_valid(self) -> None:
         """Test the returned URI is valid and matches environmental variables"""
 
-        expected_url = f'postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@/testdb?host=localhost&port=5433'
+        os.environ.update({
+            'DB_USER': 'testuser',
+            'DB_PASS': 'testpass',
+            'DB_HOST': 'testhost',
+            'DB_PORT': '1234',
+            'DB_NAME': 'testdb'
+        })
+
+        expected_url = f'postgresql+asyncpg://testuser:testpass@/testdb?host=testhost&port=1234'
         self.assertEqual(expected_url, fetch_db_url())
 
-    @patch('os.getenv', side_effect=lambda x, default=None: {
-        'DB_USER': 'testuser',
-        'DB_PASS': 'testpass',
-        'DB_NAME': 'testdb'
-    }.get(x, default))
-    def test_fetch_db_url_defaults(self, mock_getenv) -> None:
+    def test_fetch_db_url_defaults(self) -> None:
         """Test ``DB_HOST`` and ``DB_PORT`` revert to defaults when not specified"""
+
+        os.environ.update({
+            'DB_USER': 'testuser',
+            'DB_PASS': 'testpass',
+            'DB_NAME': 'testdb'
+        })
 
         db_url = fetch_db_url()
         expected_url = 'postgresql+asyncpg://testuser:testpass@/testdb?host=localhost&port=5432'
         self.assertEqual(expected_url, db_url)
 
-    def test_fetch_db_url_missing_user(self):
+    def test_fetch_db_url_missing_values(self):
         """Test an error is raised when environmental variables are not specified"""
 
         with self.assertRaises(ValueError):
@@ -60,8 +77,11 @@ class ParseLogData(TestCase):
     def setUpClass(cls) -> None:
         """Create a temporary log file with test data"""
 
+        # Create a temporary file
         cls.temp_file = NamedTemporaryFile()
         cls.test_path = Path(cls.temp_file.name)
+
+        # Define test data to write/read from disk
         cls.test_data = pd.DataFrame(dict(
             date=['Apr 1 03:20:34', 'May 12 03:20:34'],
             node=['gpu-n53', 'smp-n10'],
@@ -102,15 +122,16 @@ class ParseLogData(TestCase):
         pd.testing.assert_frame_equal(expected_df, result_df)
 
 
-class TestIngestDataToDB(unittest.IsolatedAsyncioTestCase):
-    """Tests for the ``ingest_data_to_db`` method"""
+class TestIngestDataToDB(IsolatedAsyncioTestCase):
+    """Tests for the ``ingest_data_to_db`` function"""
 
     async def asyncSetUp(self) -> None:
         """Create a temporary table to run tests against"""
 
         metadata = sa.MetaData()
         self.engine = create_async_engine(url='postgresql+asyncpg://testing:posgres@localhost:5432/test_db')
-        self.table = sa.Table('test_table', metadata, sa.Column('column1', sa.Integer), sa.Column('column2', sa.Integer))
+        self.table = sa.Table('test_table', metadata, sa.Column('column1', sa.Integer),
+                              sa.Column('column2', sa.Integer))
 
         # Create a table for testing
         create_expression = sa.schema.CreateTable(self.table)
