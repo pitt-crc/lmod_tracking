@@ -1,33 +1,17 @@
-"""Data ingestion utility for loading Lmod tracking logs into a MySQL database.
+"""Data ingestion utility for loading Lmod tracking logs into a MySQL database."""
 
-Usage:
-  lmod_ingest ingest <path>
-  lmod_ingest migrate [--sql]
-  lmod_ingest --version
-
-Options:
-  -h --help     Show this help text
-  <path>        Path of the log data to ingest
-  --sql         Print migration SQL but do not execute it
-  --version     Show the application version number
-"""
-
-import asyncio
 import logging
 import sys
 import time
+from argparse import ArgumentParser
 from pathlib import Path
 
 from alembic import config, command
-from docopt import docopt
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from . import __version__
 from .utils import fetch_db_url, ingest_data_to_db, parse_log_data
-
-# Load environmental variables
-load_dotenv(Path.home() / '.ingest.env')
 
 # Pretty print log messages to the console
 logging.basicConfig(
@@ -73,19 +57,33 @@ def migrate(sql: bool = False) -> None:
     command.upgrade(alembic_cfg, revision=SCHEMA_VERSION, sql=sql)
 
 
+def create_parser() -> ArgumentParser:
+    """Create a new commandline parser
+
+    Returns:
+        A new ``ArgumentParser``
+    """
+
+    parser = ArgumentParser(description='Data ingestion utility for loading Lmod tracking logs into a MySQL database')
+    parser.add_argument('--version', action='version', version=__version__)
+    subparsers = parser.add_subparsers()
+
+    ingest_parser = subparsers.add_parser('ingest')
+    ingest_parser.set_defaults(callable=ingest)
+    ingest_parser.add_argument('path', type=Path, help='log path to ingest data from')
+
+    migrate_parser = subparsers.add_parser('migrate')
+    migrate_parser.set_defaults(callable=migrate)
+    migrate_parser.add_argument('--sql', action='store_true', help='display migration SQL but do not execute it')
+    return parser
+
+
 def main():
     """Parse command line arguments and execute the application"""
 
-    arguments = docopt(__doc__, version=__version__)
+    # Load application settings into the working environment
+    load_dotenv(Path.home() / '.ingest.env')
 
-    try:
-        if arguments.get('ingest', False):
-            asyncio.get_event_loop().run_until_complete(
-                ingest(path=Path(arguments['<path>']))
-            )
-
-        elif arguments.get('migrate', False):
-            migrate(sql=arguments['--sql'])
-
-    except Exception as caught:  # pragma: nocover
-        logging.error(str(caught).split('\n')[0])
+    parser = create_parser()
+    args = vars(parser.parse_args())
+    args.pop('callable')(**args)
