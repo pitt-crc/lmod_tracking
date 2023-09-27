@@ -78,7 +78,7 @@ def create_parser() -> ArgumentParser:
     return parser
 
 
-def main():
+def main():  # pragma: nocover
     """Parse command line arguments and execute the application"""
 
     # Load application settings into the working environment

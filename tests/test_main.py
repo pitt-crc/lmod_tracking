@@ -2,41 +2,33 @@
 
 import unittest
 from pathlib import Path
-from unittest.mock import MagicMock
 
-from lmod_ingest.main import main  # Replace 'lmod_ingest.main' with the actual module name
+from lmod_ingest.main import create_parser, ingest, migrate
 
 
-class Main(unittest.TestCase):
-    """Test argument parsing by the `main.main` function"""
+class CreateParser(unittest.TestCase):
+    """Test the parser returned by the ``create_parser`` function"""
 
-    @unittest.mock.patch('lmod_ingest.main.ingest')
-    def test_ingest(self, mock_ingest) -> None:
-        """Test the ``ingest`` subparser calls the ``ingest`` method"""
+    def setUp(self) -> None:
+        """Create a new parser instance"""
 
-        input_path = Path('/some/path')
-        arguments = {'ingest': True, '<path>': input_path}
-        with unittest.mock.patch('lmod_ingest.main.docopt', return_value=arguments):
-            main()
+        self.parser = create_parser()
 
-        mock_ingest.assert_called_once_with(path=input_path)
+    def test_ingest_path(self) -> None:
+        """Test the ``ingest`` subparser"""
 
-    @unittest.mock.patch('lmod_ingest.main.migrate')
-    def test_migrate_is_called(self, mock_migrate) -> None:
-        """Test the ``migrate`` subparser with ``sql=False``"""
+        args = create_parser().parse_args(['ingest', '/this/is/a/path'])
+        self.assertIsInstance(args.path, Path)
 
-        arguments = {'migrate': True, '--sql': False}
-        with unittest.mock.patch('lmod_ingest.main.docopt', return_value=arguments):
-            main()
+        self.assertIs(args.callable, ingest)
 
-        mock_migrate.assert_called_once_with(sql=False)
+    def test_migrate_sql(self) -> None:
+        """Test the ``migrate`` subparser"""
 
-    @unittest.mock.patch('lmod_ingest.main.migrate')
-    def test_migrate_is_called_with_sql(self, mock_migrate) -> None:
-        """Test the ``migrate`` subparser with ``sql=True``"""
+        args = create_parser().parse_args(['migrate'])
+        self.assertFalse(args.sql)
 
-        arguments = {'migrate': True, '--sql': True}
-        with unittest.mock.patch('lmod_ingest.main.docopt', return_value=arguments):
-            main()
+        args = create_parser().parse_args(['migrate', '--sql'])
+        self.assertTrue(args.sql)
 
-        mock_migrate.assert_called_once_with(sql=True)
+        self.assertIs(args.callable, migrate)
