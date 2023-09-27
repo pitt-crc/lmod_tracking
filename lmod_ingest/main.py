@@ -1,5 +1,6 @@
 """Data ingestion utility for loading Lmod tracking logs into a MySQL database."""
 
+import asyncio
 import logging
 import sys
 import time
@@ -43,7 +44,7 @@ async def ingest(path: Path) -> None:
         logging.info(f'Ingested {len(data)} log entries in {time.time() - start:.2f} seconds')
 
 
-def migrate(sql: bool = False) -> None:
+async def migrate(sql: bool = False) -> None:
     """Migrate the application database to the required schema version
 
     Args:
@@ -61,7 +62,7 @@ def create_parser() -> ArgumentParser:
     """Create a new commandline parser
 
     Returns:
-        A new ``ArgumentParser``
+        A new ``ArgumentParse`` instance
     """
 
     parser = ArgumentParser(description='Data ingestion utility for loading Lmod tracking logs into a MySQL database')
@@ -84,6 +85,9 @@ def main():  # pragma: nocover
     # Load application settings into the working environment
     load_dotenv(Path.home() / '.ingest.env')
 
+    # Parse arguments and pass them to the appropriate function
     parser = create_parser()
     args = vars(parser.parse_args())
-    args.pop('callable')(**args)
+    asyncio.get_event_loop().run_until_complete(
+        args.pop('callable')(**args)
+    )
