@@ -13,10 +13,6 @@ from sqlalchemy.ext.asyncio import create_async_engine
 import mock
 from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
 
-TEST_DB_NAME = os.environ.get('TEST_DB', 'test_db')
-TEST_DB_USER = os.environ.get('TEST_DB_USER', 'testing')
-TEST_DB_PASSWORD = os.environ.get('TEST_DB_PASSWORD', 'postgres')
-
 
 class TestFetchDBUrl(TestCase):
     """Tests for the ``fetch_db_url`` function"""
@@ -111,13 +107,12 @@ class ParseLogData(TestCase):
 class TestIngestDataToDB(IsolatedAsyncioTestCase):
     """Tests for the ``ingest_data_to_db`` function"""
 
-    db_url = f'postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASSWORD}@localhost:5432/{TEST_DB_NAME}'
-
     async def asyncSetUp(self) -> None:
         """Create a temporary table to run tests against"""
 
         # Define a database table to test against
-        self.engine = create_async_engine(self.db_url)
+        db_url = fetch_db_url()
+        self.engine = create_async_engine(db_url)
         self.table = sa.Table(
             'test_table', sa.MetaData(),
             sa.Column('column1', sa.Integer),
