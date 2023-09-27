@@ -10,6 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.asyncio import create_async_engine
 
+import mock
 from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
 
 TEST_DB_NAME = os.environ.get('TEST_DB', 'test_db')
@@ -74,52 +75,37 @@ class TestFetchDBUrl(TestCase):
 class ParseLogData(TestCase):
     """Tests for the ``parse_log_data`` function"""
 
-    test_data = pd.DataFrame(dict(
-        date=['Apr 1 03:20:34', 'May 12 03:20:34'],
-        node=['gpu-n53', 'smp-n10'],
-        user=['user1', 'user2'],
-        module=['gcc/8.2.0', 'openmpi'],
-        path=['/software/gcc/8.2.0.lua', '/software/gcc/openmpi/4.0.3.lua'],
-        host=['gpu-n53.crc.pitt.edu', 'smp-n10.crc.pitt.edu'],
-        time=[1682407234.086799, 1682407234.103664],
-    ))
-
-    @classmethod
-    def setUpClass(cls) -> None:
-        """Create a temporary log file with test data"""
-
-        # Create a temporary file
-        cls.temp_file = NamedTemporaryFile()
-        cls.test_path = Path(cls.temp_file.name)
-
-        # Write test data in the log format expected by the application
-        log_record_format = "{date} {node} ModuleUsageTracking: user={user} module={module} path={path} host={host} time={time}\n"
-        with cls.test_path.open('w') as file:
-            for _, row in cls.test_data.iterrows():
-                file.write(log_record_format.format(**row))
-
-    @classmethod
-    def tearDownClass(cls) -> None:
-        """Close any open file handles"""
-
-        cls.temp_file.close()
-
-    def test_parse_log_data_valid(self) -> None:
+    def test_parse_valid_data(self) -> None:
         """Teste the parsed file data matches the test data"""
 
-        result_df = parse_log_data(self.test_path)
+        mock_data = mock.get_mock_data()
+        mock_path = mock.TEST_PATH
         expected_df = pd.DataFrame({
-            'user': self.test_data.user,
-            'module': self.test_data.module,
-            'path': self.test_data.path,
-            'host': self.test_data.host,
-            'time': pd.to_datetime(self.test_data.time, unit='s'),
+            'user': mock_data.user,
+            'module': mock_data.module,
+            'path': mock_data.path,
+            'host': mock_data.host,
+            'time': pd.to_datetime(mock_data.time, unit='s'),
             'package': ['gcc', 'openmpi'],
             'version': ['8.2.0', None],
-            'logname': [str(self.test_path), str(self.test_path)]
+            'logname': [str(mock_path), str(mock_path)]
         })
 
+        result_df = parse_log_data(mock.TEST_PATH)
         pd.testing.assert_frame_equal(expected_df, result_df)
+
+    def test_parse_invalid_data(self) -> None:
+        """Test an error is raised when parsing data with an incorrect record format"""
+
+        with self.assertRaises(ValueError), NamedTemporaryFile() as temp_file:
+            temp_file.write(b'Apr 1 user1 gcc/8.2.0 /software/gcc/8.2.0.lua gpu-n53.crc.pitt.edu 1682407234.086799')
+            parse_log_data(Path(temp_file.name))
+
+    def test_parse_empty_file(self) -> None:
+        """Test an error is raised when parsing an empty file"""
+
+        with self.assertRaises(ValueError), NamedTemporaryFile() as temp_file:
+            parse_log_data(Path(temp_file.name))
 
 
 class TestIngestDataToDB(IsolatedAsyncioTestCase):
