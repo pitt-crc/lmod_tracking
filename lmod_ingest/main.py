@@ -1,4 +1,4 @@
-"""Data ingestion utility for loading Lmod tracking logs into a MySQL database."""
+"""Top level application logic for handling command line parsing and data ingestion."""
 
 import asyncio
 from argparse import ArgumentParser
@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from . import utils, __version__
 
 # Database metadata
-SCHEMA_VERSION = '0.1'
+CURRENT_SCHEMA_VERSION = '0.1'
 MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
 
 
@@ -26,7 +26,7 @@ def ingest(path: Path) -> None:
 
 
 def migrate(sql: bool = False) -> None:
-    """Migrate the application database to the required schema version
+    """Migrate the application database to the current schema version
 
     Args:
         sql: Print SQL migration commands without executing them
@@ -36,14 +36,14 @@ def migrate(sql: bool = False) -> None:
     alembic_cfg.set_main_option('script_location', str(MIGRATIONS_DIR))
     alembic_cfg.set_main_option('sqlalchemy.url', utils.fetch_db_url())
 
-    command.upgrade(alembic_cfg, revision=SCHEMA_VERSION, sql=sql)
+    command.upgrade(alembic_cfg, revision=CURRENT_SCHEMA_VERSION, sql=sql)
 
 
 def create_parser() -> ArgumentParser:
     """Create a new commandline parser
 
     Returns:
-        A new ``ArgumentParse`` instance
+        A new command line parser
     """
 
     parser = ArgumentParser(description='Data ingestion utility for loading Lmod tracking logs into a MySQL database')
@@ -60,7 +60,7 @@ def create_parser() -> ArgumentParser:
     return parser
 
 
-def main():  # pragma: nocover
+def main() -> None:  # pragma: nocover
     """Parse command line arguments and execute the application"""
 
     # Load application settings into the working environment

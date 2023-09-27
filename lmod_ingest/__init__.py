@@ -1,8 +1,8 @@
-"""A simple command line tool for ingesting Lmod log data into a Postgres database."""
+"""A simple command line tool for ingesting Lmod log data into a PostgreSQL database."""
 
+import importlib.metadata
 import logging
 import sys
-from importlib.metadata import version, PackageNotFoundError
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,7 +13,7 @@ logging.basicConfig(
 )
 
 try:
-    __version__ = version('lmod-ingest')
+    __version__ = importlib.metadata.version('lmod-ingest')
 
-except PackageNotFoundError:  # pragma: nocover
+except importlib.metadata.PackageNotFoundError:  # pragma: nocover
     __version__ = '0.0.0'

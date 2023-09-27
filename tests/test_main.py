@@ -1,12 +1,12 @@
 """Tests for the ``main`` module"""
 
-import unittest
 from pathlib import Path
+from unittest import TestCase
 
 from lmod_ingest.main import create_parser, ingest, migrate
 
 
-class CreateParser(unittest.TestCase):
+class CreateParser(TestCase):
     """Test the parser returned by the ``create_parser`` function"""
 
     def setUp(self) -> None:

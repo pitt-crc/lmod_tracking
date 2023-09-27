@@ -104,9 +104,15 @@ async def ingest_data_to_db(data: pd.DataFrame, name: str, connection) -> None:
 
 
 async def ingest_file(path: Path, url: str) -> None:
+    """Ingest a log file into a database
+
+    Args:
+        path: The log file path
+        url: The database URL
+    """
 
     logging.info(f'Ingesting {path.resolve()}')
-    db_engine = create_async_engine(url=fetch_db_url())
+    db_engine = create_async_engine(url=url)
     async with db_engine.connect() as connection:
         logging.info(f'Parsing log data')
         data = parse_log_data(path)
