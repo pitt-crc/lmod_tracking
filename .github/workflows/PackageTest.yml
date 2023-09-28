@@ -6,6 +6,7 @@ on:
   push:
 
 env:
+  DB_NAME: lmod_testing
   DB_USER: testing
   DB_PASS: postgres
 
