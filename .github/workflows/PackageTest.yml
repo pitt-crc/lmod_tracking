@@ -6,8 +6,8 @@ on:
   push:
 
 env:
-  TEST_DB_USER: testing
-  TEST_DB_PASSWORD: postgres
+  DB_USER: testing
+  DB_PASS: postgres
 
 jobs:
   run-tests:
@@ -23,8 +23,8 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_USER: ${{ env.TEST_DB_USER }}
-          POSTGRES_PASSWORD: ${{ env.TEST_DB_PASSWORD }}
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ env.DB_PASS }}
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
