@@ -10,9 +10,9 @@ import sqlalchemy as sa
 from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.asyncio import create_async_engine
 
-import mock
 from lmod_ingest.utils import DEFAULT_HOST, DEFAULT_PORT
 from lmod_ingest.utils import fetch_db_url, parse_log_data, ingest_data_to_db
+from . import mock
 
 
 class TestFetchDBUrl(TestCase):
