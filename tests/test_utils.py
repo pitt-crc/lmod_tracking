@@ -117,7 +117,6 @@ class TestIngestDataToDB(IsolatedAsyncioTestCase):
 
         # Define a database table to test against
         db_url = fetch_db_url()
-        print(db_url)
         self.engine = create_async_engine(db_url)
         self.table = sa.Table(
             'test_table', sa.MetaData(),
