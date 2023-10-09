@@ -10,8 +10,14 @@ permissions:
   id-token: write
 
 jobs:
+  run-tests:
+    name: Tests
+    uses: ./.github/workflows/PackageTest.yml
+    secrets: inherit
+
   publish-package:
     name: Publish Distribution
+    needs: run-tests
     runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
 
