@@ -6,3 +6,9 @@ __pycache__/
 
 # Pycharm file
 .idea/
+
+# Poetry files
+poetry.lock
+
+# Coverage results
+.coverage

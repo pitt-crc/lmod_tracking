@@ -1,3 +1,7 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "lmod-ingest"
 version = "0.0.0"  # Set by CI pipeline
@@ -7,7 +11,7 @@ homepage = "https://github.com/pitt-crc/lmod_tracking"
 repository = "https://github.com/pitt-crc/lmod_tracking"
 license = "GPLv3"
 readme = "README.md"
-packages = [{include = "lmod_ingest"}]
+packages = [{ include = "lmod_ingest" }]
 classifiers = [
     "Environment :: Console",
     "Intended Audience :: System Administrators",
@@ -24,8 +28,6 @@ classifiers = [
 python = "^3.8"
 alembic = "1.11.1"
 asyncpg = "0.27.0"
-docopt = "0.6.2"
-mysql-connector-python = "8.0.33"
 pandas = "2.0.2"
 python-dotenv = "1.0.0"
 sqlalchemy = "2.0.17"
@@ -33,6 +35,8 @@ sqlalchemy = "2.0.17"
 [tool.poetry.scripts]
 lmod-ingest = "lmod_ingest.main:main"
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.group.tests]
+optional = true
+
+[tool.poetry.group.tests.dependencies]
+coverage = "*"

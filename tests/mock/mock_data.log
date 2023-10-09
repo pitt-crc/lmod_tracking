@@ -1,0 +1,2 @@
+Apr 1 03:20:34 gpu-n53 ModuleUsageTracking: user=user1 module=gcc/8.2.0 path=/software/gcc/8.2.0.lua host=gpu-n53.crc.pitt.edu time=1682407234.086799
+May 12 03:20:34 smp-n10 ModuleUsageTracking: user=user2 module=openmpi path=/software/gcc/openmpi/4.0.3.lua host=smp-n10.crc.pitt.edu time=1682407234.103664
