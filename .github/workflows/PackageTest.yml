@@ -9,8 +9,6 @@ env:
   DB_NAME: lmod_testing
   DB_USER: testing
   DB_PASS: postgres
-  DB_HOST: localhost
-  DB_PORT: 5432
 
 jobs:
   run-tests:
