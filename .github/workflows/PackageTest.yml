@@ -50,13 +50,6 @@ jobs:
       - name: Install dependencies
         run: poetry install --with tests
 
-      - name: debug
-        run: |
-          echo $DB_NAME
-          echo $DB_USER
-          echo $DB_PASS
-          echo $DB_HOST
-
       - name: Run tests with coverage
         run: |
           poetry run coverage run -m unittest discover 
