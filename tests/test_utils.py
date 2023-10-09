@@ -7,7 +7,6 @@ from unittest import TestCase, IsolatedAsyncioTestCase
 
 import pandas as pd
 import sqlalchemy as sa
-from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from lmod_ingest.utils import DEFAULT_HOST, DEFAULT_PORT
