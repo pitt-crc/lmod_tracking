@@ -30,8 +30,8 @@ class TestFetchDBUrl(TestCase):
         os.environ.clear()
         os.environ.update(self.old_env)
 
-    def test_fetch_db_url_valid(self) -> None:
-        """Test the returned URI is valid and matches environmental variables"""
+    def test_fetch_db_from_env(self) -> None:
+        """Test the returned URI matches environmental variables"""
 
         db_user = 'testuser'
         db_pass = 'testpass'
@@ -99,7 +99,7 @@ class ParseLogData(TestCase):
         """Test an error is raised when parsing data with an incorrect record format"""
 
         with self.assertRaises(ValueError), NamedTemporaryFile() as temp_file:
-            temp_file.write(b'Apr 1 user1 gcc/8.2.0 /software/gcc/8.2.0.lua gpu-n53.crc.pitt.edu 1682407234.086799')
+            temp_file.write(b'this is not valid data')
             parse_log_data(Path(temp_file.name))
 
     def test_parse_empty_file(self) -> None:
@@ -170,7 +170,7 @@ class TestIngestDataToDB(IsolatedAsyncioTestCase):
         pd.testing.assert_frame_equal(data, result_df)
 
     async def test_empty_data(self) -> None:
-        """Test empy data frames are handled without error"""
+        """Test empty data frames are handled without error"""
 
         async with self.engine.connect() as connection:
             await ingest_data_to_db(pd.DataFrame(), self.table.name, connection)

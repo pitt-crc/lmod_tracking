@@ -14,16 +14,15 @@ class CreateParser(TestCase):
 
         self.parser = create_parser()
 
-    def test_ingest_path(self) -> None:
-        """Test the ``ingest`` subparser"""
+    def test_ingest_command_parsing(self) -> None:
+        """Test argument parsing by the ``ingest`` subparser"""
 
         args = create_parser().parse_args(['ingest', '/this/is/a/path'])
         self.assertIsInstance(args.path, Path)
-
         self.assertIs(args.callable, ingest)
 
-    def test_migrate_sql(self) -> None:
-        """Test the ``migrate`` subparser"""
+    def test_migrate_command_parsing(self) -> None:
+        """Test argument parsing by the ``migrate`` subparser"""
 
         args = create_parser().parse_args(['migrate'])
         self.assertFalse(args.sql)
