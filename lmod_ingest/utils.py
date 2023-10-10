@@ -57,14 +57,17 @@ def parse_log_data(path: Path) -> pd.DataFrame:
     # delimiter to automatically split up strings like "user=admin123" into two columns
     log_data = pd.read_table(
         path,
-        sep=r'\s+|=',
+        sep=r'\|\s|\s+|=',
         header=None,
-        usecols=range(6, 15, 2),
-        names=['user', 'module', 'path', 'host', 'time'],
+        usecols=range(6, 17, 2),
+        names=['user', 'jobid', 'module', 'path', 'host', 'time'],
         engine='python'
     )
 
-    # Convert UTC decimals to a MySQL compatible string format
+    # Mask missing job ID values and convert them to integers
+    log_data['jobid'] = log_data['jobid'].mask(log_data['jobid'] == 'nil').astype(int)
+
+    # Convert UTC decimals to a SQL compatible string format
     log_data['time'] = pd.to_datetime(log_data['time'], unit='s')
 
     # Split the module name into package names and versions
