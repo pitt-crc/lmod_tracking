@@ -1,10 +1,12 @@
 """General utilities for data parsing and ingestion."""
-
+import io
 import logging
 import os
 import time
 from pathlib import Path
+from tempfile import TemporaryFile
 
+import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
@@ -59,12 +61,15 @@ def parse_log_data(path: Path) -> pd.DataFrame:
         path,
         sep=r'\s+|=',
         header=None,
-        usecols=range(6, 15, 2),
-        names=['user', 'module', 'path', 'host', 'time'],
+        usecols=range(6, 17, 2),
+        names=['user', 'jobid', 'module', 'path', 'host', 'time'],
         engine='python'
     )
 
-    # Convert UTC decimals to a MySQL compatible string format
+    # Mask missing job ID values and convert them to integers
+    log_data['jobid'] = log_data['jobid'].mask(log_data['jobid'] == 'nil').astype(pd.Int64Dtype())
+
+    # Convert UTC decimals to a SQL compatible string format
     log_data['time'] = pd.to_datetime(log_data['time'], unit='s')
 
     # Split the module name into package names and versions
