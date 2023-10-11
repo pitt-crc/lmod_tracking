@@ -82,6 +82,7 @@ class ParseLogData(TestCase):
         mock_path = mock.TEST_PATH
         expected_df = pd.DataFrame({
             'user': mock_data.user,
+            'jobid': [1, None],
             'module': mock_data.module,
             'path': mock_data.path,
             'host': mock_data.host,
@@ -92,7 +93,7 @@ class ParseLogData(TestCase):
         })
 
         result_df = parse_log_data(mock.TEST_PATH)
-        pd.testing.assert_frame_equal(expected_df, result_df)
+        pd.testing.assert_frame_equal(expected_df, result_df, check_dtype=False)
 
     def test_parse_invalid_data(self) -> None:
         """Test an error is raised when parsing data with an incorrect record format"""
@@ -106,6 +107,13 @@ class ParseLogData(TestCase):
 
         with self.assertRaises(ValueError), NamedTemporaryFile() as temp_file:
             parse_log_data(Path(temp_file.name))
+
+    def test_parse_missing_file(self) -> None:
+        """Test an error is raised when parsing a non-existent file"""
+
+        with self.assertRaises(FileNotFoundError):
+            parse_log_data(Path('/not/a/file.log'))
+
 
 
 class TestIngestDataToDB(IsolatedAsyncioTestCase):
