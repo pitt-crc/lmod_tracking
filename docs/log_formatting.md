@@ -7,7 +7,7 @@ Log entries **must** follow this format to be parsable by the `lmod-ingest` appl
 [SYSLOG PREFIX] user=[USERNAME] jobid=[JOBID] module=[PACKAGE]/[VERSION] path=[MODULEPATH] host=[HOSTNAME] time=[UTC]
 ```
 
-Individual field values are defined as follows
+Individual field values are defined as follows:
 
 | Field           | Description                                                          |
 |-----------------|----------------------------------------------------------------------|

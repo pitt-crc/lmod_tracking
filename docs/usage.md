@@ -6,7 +6,7 @@ Common use cases and examples are provided in the sections below.
 ## Database Migration
 
 The `migrate` command will automatically apply the database schema required by the application.
-This command should be run any time the utility is installed or updated/downgraded between versions
+This command should be run any time the utility is installed or updated/downgraded between versions.
 The application will automatically identify and apply the appropriate schema version.
 
 ```bash

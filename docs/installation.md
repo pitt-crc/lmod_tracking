@@ -65,7 +65,7 @@ lmod-ingest migrate
 ```
 
 Use the `ingest` command to load a log file into the application database.
-The ingestion script can safely be run multiple times on the same log file without ingesting duplicate data.
+This command can be run multiple times on the same log file without ingesting duplicate database data.
 
 ```bash
 lmod-ingest ingest lmod.log
