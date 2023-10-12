@@ -1,4 +1,8 @@
-"""A simple command line tool for ingesting Lmod log data into a PostgreSQL database."""
+"""
+The `lmod-ingest` utility is a simple command line tool for ingesting Lmod log data into a PostgreSQL database.
+
+
+"""
 
 import importlib.metadata
 import logging
