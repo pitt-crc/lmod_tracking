@@ -7,8 +7,6 @@ The `lmod-ingest` utility is installed in four steps:
 3. Configure the database connection settings.
 4. Migrate the database schema and run the `lmod-ingest` command-line utility.
 
-Aside from system pre-requisites, most of this process is automated for convenience.
-
 ## System Prerequisites
 
 These instructions assume the following conditions are already met:
@@ -61,13 +59,8 @@ DB_NAME=lmod_tracking
 # Setup and Execution
 
 After configuring the database connection settings, the application database schema is applied using the `migrate` command.
-The `--sql` option can be used to perform an initial dry run and print the migration SQL logic without modifying the database.
 
 ```bash
-# Print the migration SQL commands
-lmod-ingest migrate --sql
-
-# Execute the migration
 lmod-ingest migrate
 ```
 
