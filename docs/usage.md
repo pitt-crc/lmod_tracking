@@ -32,3 +32,21 @@ lmod-ingest ingest lmod.log
 ## Leveraging Database Views
 
 The application database schema includes predefined views for user convenience.
+Available database tables and views are listed in the table below.
+
+| View                    | View/Table | Description                     |
+|-------------------------|------------|---------------------------------|
+| `unique_loads`          | Table      | The raw ingested lmod log data. |
+| `unique_loads`          | View       |                                 |
+| `package_count`         | View       |                                 |
+| `package_version_count` | View       |                                 |
+
+### Query Examples
+
+All packages loaded in between Jan 1 2023 and Jan 1 2024
+
+The number of times a specific package has been loaded as part of a slurm job
+
+The number of times a specific package has been loaded outside a slurm job
+
+The total number of unique users who have loaded a given pacakge in the past month ordered by decreasing popularity
