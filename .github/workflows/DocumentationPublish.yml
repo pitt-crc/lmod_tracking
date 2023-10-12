@@ -1,0 +1,52 @@
+name: Publish Documentation
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: 'The documentation version number'
+        default: 'develop'
+        type: string
+      latest:
+        description: 'Set the new build as the latest version'
+        default: false
+        type: boolean
+  push:
+    branches: [ main ]
+
+jobs:
+  publish:
+    name: Publish HTML
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+
+      - name: Install dependencies
+        shell: bash
+        run: poetry install --with docs
+
+      - name: Configure git
+        run: |
+          git config --global user.name "Documentation CI"
+          git config --global user.email docs@dummy.bot.com
+
+      - name: Build and publish
+        run: poetry run mike deploy --push ${{ inputs.version || 'develop' }}
+
+      - name: Update latest version
+        if: ${{ inputs.latest }}
+        run: |
+          poetry run mike alias --update-aliases --push ${{ inputs.version }} latest
+          poetry run mike set-default --push latest

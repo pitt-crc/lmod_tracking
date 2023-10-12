@@ -8,6 +8,9 @@ plugins:
   - search:
   - mkdocstrings:
       custom_templates: templates
+extra:
+  version:
+    provider: mike
 nav:
   - index.md
   - usage.md

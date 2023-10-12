@@ -59,3 +59,11 @@ jobs:
           repository-url: ${{ matrix.host }}
           user: ${{ secrets.REPO_USER }}
           password: ${{ secrets.REPO_PASSWORD }}
+
+  publish-docs:
+    name: Docs
+    needs: [ publish-docker ]
+    uses: ./.github/workflows/DocumentationPublish.yml
+    with:
+      version: ${{ github.event.release.tag_name }}
+      latest: true
