@@ -13,7 +13,7 @@ The application will automatically identify and apply the appropriate schema ver
 lmod-ingest migrate
 ```
 
-The `--sql` option enables a dry-run mode which prints the equivilent SQL commands without executing them.
+The `--sql` option enables a dry-run mode which prints the equivalent SQL commands without executing them.
 
 ```bash
 lmod-ingest migrate --sql
@@ -36,7 +36,7 @@ Available database tables and views are listed in the table below.
 
 | View                    | View/Table | Description                     |
 |-------------------------|------------|---------------------------------|
-| `unique_loads`          | Table      | The raw ingested lmod log data. |
+| `unique_loads`          | Table      | The raw ingested Lmod log data. |
 | `unique_loads`          | View       |                                 |
 | `package_count`         | View       |                                 |
 | `package_version_count` | View       |                                 |
