@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from . import utils, __version__
 
 # Database metadata
-CURRENT_SCHEMA_VERSION = '0.1'
+CURRENT_SCHEMA_VERSION = '0.2'
 MIGRATIONS_DIR = Path(__file__).resolve().parent / 'migrations'
 
 
