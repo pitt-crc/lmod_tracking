@@ -1,0 +1,19 @@
+site_name: Lmod Log Ingestion Utility
+theme:
+  name: readthedocs
+  highlightjs: true
+  include_homepage_in_sidebar: true
+  prev_next_buttons_location: bottom
+plugins:
+  - search:
+  - mkdocstrings:
+      custom_templates: templates
+nav:
+  - index.md
+  - usage.md
+  - installation.md
+  - log_formatting.md
+  - Source Documentation:
+      - source_docs/main.md
+      - source_docs/utils.md
+copyright: Copyright &copy; University of Pittsburgh. All rights reserved.
