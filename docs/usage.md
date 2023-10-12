@@ -43,10 +43,33 @@ Available database tables and views are listed in the table below.
 
 ### Query Examples
 
-All packages loaded in between Jan 1 2023 and Jan 1 2024
+All packages loaded from within a Slurm job between Jan 1 2023 and Jan 1 2024
 
-The number of times a specific package has been loaded as part of a slurm job
+```sql
+SELECT DISTINCT package
+FROM unique_loads
+WHERE time >= '2023-01-01' AND time < '2024-01-01';
+```
 
 The number of times a specific package has been loaded outside a slurm job
 
-The total number of unique users who have loaded a given pacakge in the past month ordered by decreasing popularity
+```sql
+SELECT package, COUNT(*) AS load_count
+FROM log_data
+WHERE jobid IS NULL
+GROUP BY package;
+```
+
+The total number of unique users who have loaded each package in the past month ordered by decreasing popularity
+
+```sql
+SELECT
+    package,
+    COUNT(DISTINCT "user") AS unique_user_count
+FROM log_data
+WHERE 
+    jobid IS NULL AND
+    time >= NOW() - INTERVAL '1 month' AND time < NOW()
+GROUP BY package
+ORDER BY unique_user_count DESC;
+```
