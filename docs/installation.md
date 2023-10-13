@@ -1,6 +1,6 @@
 # Installation and Setup
 
-The `lmod-ingest` utility is installed in four steps:  
+The `lmod-ingest` utility is installed in four steps:
 
 1. Ensure your system satisfies the preliminary system requirements.
 2. Pip install the `lmod-ingest` utility.
