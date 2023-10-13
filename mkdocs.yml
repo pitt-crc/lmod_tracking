@@ -14,7 +14,4 @@ nav:
   - installation.md
   - usage.md
   - log_formatting.md
-  - Source Documentation:
-      - source_docs/main.md
-      - source_docs/utils.md
 copyright: Copyright &copy; University of Pittsburgh. All rights reserved.
