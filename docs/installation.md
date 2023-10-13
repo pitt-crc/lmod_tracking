@@ -49,7 +49,8 @@ DB_NAME=lmod_tracking
 
 # Setup and Execution
 
-After configuring the database connection settings, the application database schema is applied using the `migrate` command.
+After configuring the database connection settings, the application database schema is applied using the `migrate`
+command.
 
 ```bash
 lmod-ingest migrate

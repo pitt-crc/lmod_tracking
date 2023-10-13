@@ -26,7 +26,7 @@ If your format differs from the above, you must change it by editing the `SitePa
 The specific location of this file will vary depending on your Slurm cluster setup.
 
 Appending the following code to the bottom of your `SitePackage.lua` file will send lmod messages to syslog using the required format.
-Note the slurm Job ID is determined using the nullable environmental variable `SLURM_JOB_ID` 
+Note the slurm Job ID is determined using the nullable environmental variable `SLURM_JOB_ID`
 (and not the older, deprecated variable `SLURM_JOBID`).
 
 ```lua

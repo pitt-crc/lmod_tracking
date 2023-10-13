@@ -1,12 +1,10 @@
 """General utilities for data parsing and ingestion."""
-import io
+
 import logging
 import os
 import time
 from pathlib import Path
-from tempfile import TemporaryFile
 
-import numpy as np
 import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import insert
