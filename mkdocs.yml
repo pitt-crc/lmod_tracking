@@ -9,9 +9,6 @@ plugins:
   - search:
   - mkdocstrings:
       custom_templates: templates
-extra:
-  version:
-    provider: mike
 nav:
   - index.md
   - installation.md
