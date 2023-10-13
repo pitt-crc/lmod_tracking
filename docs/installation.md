@@ -1,21 +1,12 @@
 # Installation and Setup
 
-The `lmod-ingest` utility is installed in four steps:  
-
-1. Ensure your system satisfies the preliminary system requirements.
-2. Pip install the `lmod-ingest` utility.
-3. Configure the database connection settings.
-4. Migrate the database schema and run the `lmod-ingest` command-line utility.
-
-## System Prerequisites
-
-These instructions assume the following conditions are already met:
+Before installing the `lmod-ingest` utility, the following resources should already be configured in your environment:
 
 - Lmod logging is configured and running on your cluster.
 - Lmod system logs are proper configured for compatibility with the ingestion utility.
 - A Postgres server is installed and configured with valid user credentials.
 
-For more information on implementing accepted log formats, see the [log formatting guide](log_formatting.md).
+For more information on implementing accepted Lmod log formats, see the [log formatting guide](log_formatting.md).
 
 ## Package Installation
 
@@ -34,10 +25,10 @@ lmod-ingest --version
 ## Database Settings
 
 Database connection settings are configured using environmental variables.
-For convenience, these values can alternatively be defined in a `.ingest.env` file under the user's home directory.
+For convenience, these values can also be defined in a `.ingest.env` file under the user's home directory.
 Values defined in a `.ingest.env` file will always take precedence over existing environmental variables.
 
-A list of accepted variables and their defaults is provided in the table below.
+A list of application settings and their defaults is provided in the table below.
 
 | Variable  | Default     | Description                               |
 |-----------|-------------|-------------------------------------------|
@@ -48,7 +39,7 @@ A list of accepted variables and their defaults is provided in the table below.
 | `DB_NAME` |             | Name of the database to write to.         |
 
 The following example demonstrates a minimally valid `.ingest.env` file.
-**Always** choose a secure database password when operating in a production environment.
+Administrators are reminded to **always** choose a secure database password when operating in a production environment.
 
 ```bash
 DB_USER=lmod_ingest

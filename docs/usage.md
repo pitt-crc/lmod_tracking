@@ -1,6 +1,5 @@
 # Usage Examples
 
-The `lmod-ingest` utility is designed to provide a minimal command line interface.
 Common use cases and examples are provided in the sections below.
 
 ## Database Migration
