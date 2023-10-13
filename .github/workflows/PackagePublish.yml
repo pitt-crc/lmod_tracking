@@ -64,7 +64,7 @@ jobs:
 
   publish-docs:
     name: Docs
-    needs: [ publish-docker ]
+    needs: [ publish-package ]
     uses: ./.github/workflows/DocumentationPublish.yml
     with:
       version: ${{ github.event.release.tag_name }}
