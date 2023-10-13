@@ -1,52 +1,32 @@
 name: Publish Documentation
 
 on:
-  workflow_call:
-    inputs:
-      version:
-        description: 'The documentation version number'
-        default: 'develop'
-        type: string
-      latest:
-        description: 'Set the new build as the latest version'
-        default: false
-        type: boolean
-  push:
-    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  publish:
-    name: Publish HTML
+  build:
+    name: Build
+    uses: ./.github/workflows/DocumentationBuild.yml
+    secrets: inherit
+
+  deploy:
+    name: Deploy Documentation
+    needs: [ build ]
+
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: false
-
-      - name: Install dependencies
-        shell: bash
-        run: poetry install --with docs
-
-      - name: Configure git
-        run: |
-          git config --global user.name "Documentation CI"
-          git config --global user.email docs@dummy.bot.com
-
-      - name: Build and publish
-        run: poetry run mike deploy --push ${{ inputs.version || 'develop' }}
-
-      - name: Update latest version
-        if: ${{ inputs.latest }}
-        run: |
-          poetry run mike alias --update-aliases --push ${{ inputs.version }} latest
-          poetry run mike set-default --push latest
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

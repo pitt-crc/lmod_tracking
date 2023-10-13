@@ -12,3 +12,7 @@ poetry.lock
 
 # Coverage results
 .coverage
+
+# Compiled project documentation
+site
+
