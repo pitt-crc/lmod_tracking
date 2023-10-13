@@ -69,4 +69,9 @@ def main() -> None:  # pragma: nocover
     # Parse arguments and pass them to the appropriate function
     parser = create_parser()
     args = vars(parser.parse_args())
-    args.pop('callable')(**args)
+
+    try:
+        args.pop('callable')(**args)
+
+    except Exception as exc:
+        parser.error(message=str(exc))
