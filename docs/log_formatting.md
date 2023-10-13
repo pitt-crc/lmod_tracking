@@ -9,16 +9,16 @@ Log entries **must** follow this format to be parsable by the `lmod-ingest` appl
 
 Individual field values are defined as follows:
 
-| Field           | Description                                                          |
-|-----------------|----------------------------------------------------------------------|
-| `SYSLOG PREFIX` | A system specific message prefix added by syslog.                    |
-| `USERNAME`      | The name of the user who loaded the module.                          |
-| `JOBID`         | The nullable (`nil`) ID of the slurm job the module was loaded from. |
-| `PACKAGE`       | The name of the package loaded via lmod.                             |
-| `VERSION`       | The version of the pacakge loaded via lmod.                          |
-| `MODULEPATH`    | The path of the loaded module file.                                  |
-| `HOSTNAME`      | The machine hostname where the module was loaded.                    |
-| `UTC`           | The UTC time the module was loaded.                                  |
+| Field           | Description                                                              |
+|-----------------|--------------------------------------------------------------------------|
+| `SYSLOG PREFIX` | A system specific message prefix added by syslog. This value is ignored. |
+| `USERNAME`      | The name of the user who loaded the module.                              |
+| `JOBID`         | The nullable (`nil`) ID of the slurm job the module was loaded from.     |
+| `PACKAGE`       | The name of the package loaded via lmod.                                 |
+| `VERSION`       | The version of the pacakge loaded via lmod.                              |
+| `MODULEPATH`    | The path of the loaded module file.                                      |
+| `HOSTNAME`      | The machine hostname where the module was loaded.                        |
+| `UTC`           | The UTC time the module was loaded.                                      |
 
 ## Setting the Log Format
 
