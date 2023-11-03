@@ -33,12 +33,12 @@ lmod-ingest ingest lmod.log
 The application database schema includes predefined views for user convenience.
 Available database tables and views are listed in the table below.
 
-| View                    | View/Table | Description                     |
-|-------------------------|------------|---------------------------------|
-| `unique_loads`          | Table      | The raw ingested Lmod log data. |
-| `unique_loads`          | View       |                                 |
-| `package_count`         | View       |                                 |
-| `package_version_count` | View       |                                 |
+| View                    | View/Table | Description                                                          |
+|-------------------------|------------|----------------------------------------------------------------------|
+| `log_data`              | Table      | The raw ingested Lmod log data.                                      |
+| `unique_loads`          | View       | The same as `log_data` but each entry represents a unique slurm job. |
+| `package_count`         | View       | The total number of times a package has been used in a slurm job.    |
+| `package_version_count` | View       | The same as `package_count` but broken down by version.              |
 
 ### Query Examples
 
