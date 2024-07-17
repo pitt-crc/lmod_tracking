@@ -8,7 +8,6 @@ theme:
 plugins:
   - search:
   - mkdocstrings:
-      custom_templates: templates
 nav:
   - index.md
   - installation.md
