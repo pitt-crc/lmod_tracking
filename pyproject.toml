@@ -26,11 +26,11 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-alembic = "1.15.2"
+alembic = "1.16.2"
 asyncpg = "0.30.0"
-pandas = "2.2.3"
-python-dotenv = "1.1.0"
-sqlalchemy = "2.0.40"
+pandas = "2.3.0"
+python-dotenv = "1.1.1"
+sqlalchemy = "2.0.41"
 
 [tool.poetry.scripts]
 lmod-ingest = "lmod_ingest.main:main"
