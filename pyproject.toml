@@ -40,10 +40,3 @@ optional = true
 
 [tool.poetry.group.tests.dependencies]
 coverage = "*"
-
-[tool.poetry.group.docs]
-optional = true
-
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.5.3"
-mkdocstrings-python = "^1.13.0"
