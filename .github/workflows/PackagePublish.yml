@@ -15,15 +15,8 @@ jobs:
     uses: ./.github/workflows/PackageTest.yml
     secrets: inherit
 
-  build-docs:
-    name: Docs
-    needs: run-tests
-    uses: ./.github/workflows/DocumentationBuild.yml
-    secrets: inherit
-
   publish-package:
     name: Publish Distribution
-    needs: build-docs
     runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
 
@@ -67,20 +60,3 @@ jobs:
           repository-url: ${{ matrix.host }}
           user: ${{ secrets.REPO_USER }}
           password: ${{ secrets.REPO_PASSWORD }}
-
-  publish-docs:
-    name: Deploy Documentation
-    needs: [ build-docs, publish-package ]
-
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
